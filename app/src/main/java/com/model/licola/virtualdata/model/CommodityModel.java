@@ -5,7 +5,7 @@ package com.model.licola.virtualdata.model;
  */
 
 public class CommodityModel {
-  public String title;
+  private String title;
   public int price;
 
   @Override
