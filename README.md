@@ -1,5 +1,9 @@
+
+
 # [VirtualData](https://github.com/LiCola/VirtualData)
 虚拟数据生成
+
+[ ![Download](https://api.bintray.com/packages/licola/maven/VirtualData/images/download.svg) ](https://bintray.com/licola/maven/VirtualData/_latestVersion)
 
 # 项目起源
 在编写单元测试代码时，MVP模式下，P层通过Mock对象实现测试，V层测试需要验证界面元素的显示，很多时候需要手动初始化VO视图对象。
