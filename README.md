@@ -8,12 +8,12 @@
 # 引用
 
 ```java
-   implementation 'com.model.licola:virtual:1.0.2'
+   implementation 'com.licola:virtual:1.0.2'
 ```
 
 主要目的是辅助开发阶段的测试，不建议在发布版引用，所以一般应该这样配置
 ```java
- testImplementation 'com.model.licola:virtual:1.0.2'
+ testImplementation 'com.licola:virtual:1.0.2'
 ```
 
 # 使用
