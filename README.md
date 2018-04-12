@@ -25,10 +25,9 @@ CollectionUserModel models = DataVirtualBuilder.virtual(CollectionUserModel.clas
 ```
 一行代码解决。
 
-> 因为这个项目的使用目的就是在单元测试中使用，所以没有特别考虑性能，没有缓存构造方法结构等优化处理。
 
 
 # 缺点
-目前反射的是Model的空参构造方法。所以对Model的构造方法有限制。使用时请注意。
+目前反射的是Model的空参构造方法。所以对Model的构造方法有要求。使用时请注意。
 
 
