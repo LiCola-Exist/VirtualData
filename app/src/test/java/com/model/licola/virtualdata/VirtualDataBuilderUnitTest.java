@@ -14,7 +14,7 @@ import org.junit.Test;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ExampleUnitTest {
+public class VirtualDataBuilderUnitTest {
 
 
   @Test
@@ -37,12 +37,11 @@ public class ExampleUnitTest {
 
   @Test
   public void testModels() throws Exception {
-    int size = 3;
-    CollectionUserModel models = VirtualDataBuilder.virtual(CollectionUserModel.class, size)
+    CollectionUserModel models = VirtualDataBuilder.virtual(CollectionUserModel.class)
         .addKeyInts("times", new int[]{10, 20, 30})
         .build();
 
-    assertEquals(size, models.userModels.size());
+    assertEquals(true, !models.userModels.isEmpty());
     assertEquals(true, models.commodityModel != null);
     System.out.println(models.toString());
   }
