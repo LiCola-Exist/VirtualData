@@ -1,9 +1,9 @@
-package com.model.licola.virtual;
+package com.licola.virutal;
 
 
-import static com.model.licola.virtual.RandomUtils.getChineseSimple;
-import static com.model.licola.virtual.RandomUtils.getNumberString;
-import static com.model.licola.virtual.RandomUtils.getSymbolString;
+import static com.licola.virutal.RandomUtils.getChineseSimple;
+import static com.licola.virutal.RandomUtils.getNumberString;
+import static com.licola.virutal.RandomUtils.getSymbolString;
 
 /**
  * Created by 李可乐 on 2017/4/20.
@@ -13,7 +13,7 @@ public class RandomRuleData {
 
   public interface RandomDataInterface<T> {
 
-    T getData();
+    T getRandomData();
   }
 
 
@@ -26,7 +26,7 @@ public class RandomRuleData {
     }
 
     @Override
-    public String getData() {
+    public String getRandomData() {
       return getNumberString(length);
     }
   }
@@ -40,7 +40,7 @@ public class RandomRuleData {
     }
 
     @Override
-    public String getData() {
+    public String getRandomData() {
       return getSymbolString(length);
     }
   }
@@ -55,7 +55,7 @@ public class RandomRuleData {
     }
 
     @Override
-    public String getData() {
+    public String getRandomData() {
       return getChineseSimple(length);
     }
   }
@@ -69,7 +69,7 @@ public class RandomRuleData {
     }
 
     @Override
-    public Integer getData() {
+    public Integer getRandomData() {
       return RandomUtils.getInt(length);
     }
   }

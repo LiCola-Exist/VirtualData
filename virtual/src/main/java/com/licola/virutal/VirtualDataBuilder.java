@@ -1,20 +1,23 @@
-package com.model.licola.virtual;
+package com.licola.virutal;
 
-import com.model.licola.virtual.RandomRuleData.RandomDataInteger;
-import com.model.licola.virtual.RandomRuleData.RandomDataInterface;
-import com.model.licola.virtual.RandomRuleData.RandomDataStringChinese;
-import com.model.licola.virtual.RandomRuleData.RandomDataStringNumber;
-import com.model.licola.virtual.RandomRuleData.RandomDataStringSymbol;
+import com.licola.virutal.RandomRuleData.RandomDataInteger;
+import com.licola.virutal.RandomRuleData.RandomDataInterface;
+import com.licola.virutal.RandomRuleData.RandomDataStringChinese;
+import com.licola.virutal.RandomRuleData.RandomDataStringNumber;
+import com.licola.virutal.RandomRuleData.RandomDataStringSymbol;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by 李可乐 on 2017/4/17.
@@ -28,20 +31,40 @@ import java.util.Map;
  * 应用场景：主要用于MVP单元测试的V层测试，让V层测试时，有可显示数据用于测试，避免手动生成测试数据。
  */
 
-public class DataVirtualBuilder<T> {
+public class VirtualDataBuilder<T> {
 
-  public static List<String> VirtualCollectionsString(int size) {
-    return VirtualSimpleCollections(size, new RandomDataStringSymbol(10));
+  //默认配置
+  private static final HashMap<String, RandomRuleData.RandomDataInterface<String>> defaultStrings = getDefaultStringRule();
+  private static final HashMap<String, RandomDataInterface<Integer>> defaultIntegers = getDefaultIntegerRule();
+  private static final HashMap<String, RandomDataInterface<Long>> defaultLongs = getDefaultLongRule();
+  private static final int defaultListSize = 8;
+
+  //必要参数
+  private Class<T> classTarget;
+
+  //非必要参数
+  //外部设置 提供给某些字段名的 随机值数组
+  private HashMap<String, int[]> keyInts = new HashMap<>();
+  private HashMap<String, long[]> keyLongs = new HashMap<>();
+  private HashMap<String, String[]> keyStrings = new HashMap<>();
+
+
+  int sizeCollection = defaultListSize;
+  String fieldName;//变量名
+
+  private static HashMap<Class, Constructor> cacheConstructor = new HashMap<>();
+
+  public static List<String> VirtualStrings(int size) {
+    return VirtualSimpleList(size, new RandomDataStringSymbol(10));
   }
 
-  public static <T> List<T> VirtualSimpleCollections(int size,
+  public static <T> List<T> VirtualSimpleList(int size,
       RandomDataInterface<T> dataInterface) {
-    if (size == 0) {
-      return Collections.EMPTY_LIST;
-    }
+    checkSizeArg(size);
+
     List<T> dataList = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
-      dataList.add(dataInterface.getData());
+      dataList.add(dataInterface.getRandomData());
     }
     return dataList;
   }
@@ -49,8 +72,8 @@ public class DataVirtualBuilder<T> {
   /**
    * 虚拟Model实例
    */
-  public static <T> DataVirtualBuilder<T> virtual(Class<T> classTarget) {
-    return new DataVirtualBuilder<>(classTarget);
+  public static <T> VirtualDataBuilder<T> virtual(Class<T> classTarget) {
+    return new VirtualDataBuilder<>(classTarget);
   }
 
   /**
@@ -59,127 +82,144 @@ public class DataVirtualBuilder<T> {
    * @param sizeList 指定的数据长度
    * @param <T> 类
    */
-  public static <T> DataVirtualBuilder<T> virtual(Class<T> classTarget, int sizeList) {
-    return new DataVirtualBuilder<>(classTarget).setSizeList(sizeList);
+  public static <T> VirtualDataBuilder<T> virtual(Class<T> classTarget, int sizeList) {
+    return new VirtualDataBuilder<>(classTarget).setSizeCollection(sizeList);
   }
 
-  //默认参数
-  private static final HashMap<String, RandomRuleData.RandomDataInterface<String>> defaultStrings = getDefaultStringRule();
-  private static final HashMap<String, RandomDataInterface<Integer>> defaultIntegers = getDefaultIntegerRule();
-  private static final HashMap<String, RandomDataInterface<Long>> defaultLongs = getDefaultLongRule();
 
-  //必要参数
-  private Class<T> classTarget;
-
-  //非必要参数
-  //外部设置 提供给某些字段名的 随机值数组
-  HashMap<String, int[]> keyInts = new HashMap<>();
-  HashMap<String, long[]> keyLongs = new HashMap<>();
-  HashMap<String, String[]> keyStrings = new HashMap<>();
-
-  int sizeList = 8;
-  String fieldName;//变量名
-
-
-  private DataVirtualBuilder(Class<T> classTarget) {
+  private VirtualDataBuilder(Class<T> classTarget) {
     this.classTarget = classTarget;
   }
 
-  public DataVirtualBuilder<T> addKeyInts(String keyField, int[] data) {
+  public VirtualDataBuilder<T> addKeyInts(String keyField, int[] data) {
     keyInts.put(keyField, data);
     return this;
   }
 
-  public DataVirtualBuilder<T> addKeyStrings(String keyField, String[] data) {
+  public VirtualDataBuilder<T> addKeyStrings(String keyField, String[] data) {
     keyStrings.put(keyField, data);
     return this;
   }
 
-  public DataVirtualBuilder<T> addKeyLongs(String keyField, long[] data) {
+  public VirtualDataBuilder<T> addKeyLongs(String keyField, long[] data) {
     keyLongs.put(keyField, data);
     return this;
   }
 
-  public DataVirtualBuilder<T> setSizeList(int size) {
-    this.sizeList = size;
+  public VirtualDataBuilder<T> setSizeCollection(int size) {
+    this.sizeCollection = size;
     return this;
   }
 
-  public DataVirtualBuilder<T> setFieldName(String name) {
+  public VirtualDataBuilder<T> setFieldName(String name) {
     this.fieldName = name;
     return this;
   }
 
+  /**
+   * 构造泛型对象
+   *
+   * @return 虚拟数据实例
+   */
   public T build() {
 
     try {
       return getVirtualData();
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    } catch (InstantiationException e) {
-      e.printStackTrace();
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
+  /**
+   * 构造泛型的List对象
+   *
+   * @return 虚拟数据List实例
+   */
   public List<T> buildList() {
-    List<T> list = new ArrayList<>(sizeList);
+    checkSizeArg(sizeCollection);
+    List<T> list = new ArrayList<>(sizeCollection);
     try {
-      for (int i = 0; i < sizeList; i++) {
+      for (int i = 0; i < sizeCollection; i++) {
         list.add(getVirtualData());
       }
       return list;
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    } catch (InstantiationException e) {
-      e.printStackTrace();
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
+  public Set<T> buildSet(){
+    checkSizeArg(sizeCollection);
+    Set<T> set = new HashSet<>(sizeCollection);
+    try {
+      for (int i = 0; i < sizeCollection; i++) {
+        set.add(getVirtualData());
+      }
+      return set;
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-  private T getVirtualData() throws IllegalAccessException, InstantiationException {
+  private static void checkSizeArg(int sizeList) {
+    if (sizeList <= 0) {
+      throw new IllegalArgumentException("size 不能小于等于0");
+    }
+  }
+
+  private T getVirtualData()
+      throws IllegalAccessException, InstantiationException, InvocationTargetException {
 
     Class<?> tClass = classTarget;
-    boolean isHasEmptyConstructor = false;
-    //遍历构造方法 查询是否有空参构造方法
-    for (Constructor item :
-        tClass.getConstructors()) {
-      if (item.getParameterTypes().length == 0) {
-        isHasEmptyConstructor = true;
+
+    Constructor constructor = cacheConstructor.get(tClass);
+
+    if (constructor == null) {
+      //遍历构造方法 查询是否有空参构造方法
+      for (Constructor item :
+          tClass.getConstructors()) {
+        if (item.getParameterTypes().length == 0) {
+          constructor = item;
+          cacheConstructor.put(tClass, item);
+        }
       }
     }
 
-    if (!isHasEmptyConstructor) {
+    if (constructor == null) {
       throw new InstantiationException(
           "无法初始化该类：" + classTarget.getName() + " 没有空参构造方法 请添加该类的空参构造方法");
     }
 
-    Object object;
-    object = tClass.newInstance();
+    Object object = constructor.newInstance();
 
-    Field[] fields = tClass.getDeclaredFields();
+    Field[] fields = tClass.getDeclaredFields();//获取该类声明的全部域
 
-    String fieldName;
-    Class<?> fieldClass;
     for (Field itemField : fields) {
       Object objectData;
 
-      fieldName = itemField.getName();
-      fieldClass = itemField.getType();
-      itemField.setAccessible(true);
+      String fieldName = itemField.getName();
+      Class<?> fieldClass = itemField.getType();
+      itemField.setAccessible(true);//访问private必须设置
+
       if (fieldClass.isAssignableFrom(List.class)) {
         //List类
-        ParameterizedType parameterType = (ParameterizedType) itemField.getGenericType();
-        Class<?> parameterClass = (Class<?>) parameterType.getActualTypeArguments()[0];
-        List list = new ArrayList(sizeList);
-        for (int i = 0; i < sizeList; i++) {
+        Class<?> parameterClass = getParameterClass(itemField);
+        List list = new ArrayList(sizeCollection);
+        for (int i = 0; i < sizeCollection; i++) {
           list.add(getDataByTypeAndName(fieldName, parameterClass));
         }
         objectData = list;
-      }else if (fieldClass.isAssignableFrom(Map.class)){
-        //map结构无法 确定参数名 无法构造
-        objectData=Collections.EMPTY_MAP;
+      } else if (fieldClass.isAssignableFrom(Map.class)) {
+        //Map类 无法明确参数名 无法构造
+        objectData = Collections.EMPTY_MAP;
+      } else if (fieldClass.isAssignableFrom(Set.class)) {
+        //Set类
+        Class<?> parameterClass = getParameterClass(itemField);
+        Set set = new HashSet();
+        for (int i = 0; i < sizeCollection; i++) {
+          set.add(getDataByTypeAndName(fieldName, parameterClass));
+        }
+        objectData = set;
       } else {
         //其他类 包括基类类型和包装类型
         objectData = getDataByTypeAndName(fieldName, fieldClass);
@@ -191,11 +231,15 @@ public class DataVirtualBuilder<T> {
     return (T) object;
   }
 
+  private Class<?> getParameterClass(Field itemField) {
+    ParameterizedType parameterType = (ParameterizedType) itemField.getGenericType();
+    return (Class<?>) parameterType.getActualTypeArguments()[0];
+  }
+
   /**
    * 根据字段名 和 类型 返回数据
    */
-  private Object getDataByTypeAndName(String fieldName, Class<?> fieldClass)
-      throws IllegalAccessException {
+  private Object getDataByTypeAndName(String fieldName, Class<?> fieldClass) {
     if (fieldClass.isAssignableFrom(boolean.class) || fieldClass.isAssignableFrom(Boolean.class)) {
       //布尔类型 （基本类型和包装类）
       return RandomUtils.getBoolean();
@@ -207,20 +251,10 @@ public class DataVirtualBuilder<T> {
         .isAssignableFrom(Double.class)) {
       //double浮点类型
       return RandomUtils.getDouble();
-    } else if (fieldClass.isAssignableFrom(String.class)) {
-      //String
-      String date;
-      date = checkDefaultRule(fieldName, defaultStrings, "default");
-      if (checkSetKeyMap(fieldName, keyStrings)) {//检查 设置的特殊key
-        String[] choiceData = keyStrings.get(fieldName);
-        date = choiceData[RandomUtils.getInt(choiceData.length)];
-      }
-      return date;
     } else if (fieldClass.isAssignableFrom(int.class) || fieldClass
         .isAssignableFrom(Integer.class)) {
       //整数类型（基本类型和包装类）
-      Integer data;
-      data = checkDefaultRule(fieldName, defaultIntegers, 0);
+      Integer data = checkDefaultRule(fieldName, defaultIntegers, 0);
       if (checkSetKeyMap(fieldName, keyInts)) {
         int[] choiceData = keyInts.get(fieldName);
         data = choiceData[RandomUtils.getInt(choiceData.length)];
@@ -228,10 +262,17 @@ public class DataVirtualBuilder<T> {
       return data;
     } else if (fieldClass.isAssignableFrom(long.class) || fieldClass.isAssignableFrom(Long.class)) {
       //长整数整型 （基本类型和包装类）
-      Long date;
-      date = checkDefaultRule(fieldName, defaultLongs, 0L);
+      Long date = checkDefaultRule(fieldName, defaultLongs, 0L);
       if (checkSetKeyMap(fieldName, keyLongs)) {
         long[] choiceData = keyLongs.get(fieldName);
+        date = choiceData[RandomUtils.getInt(choiceData.length)];
+      }
+      return date;
+    } else if (fieldClass.isAssignableFrom(String.class)) {
+      //String
+      String date = checkDefaultRule(fieldName, defaultStrings, "default");
+      if (checkSetKeyMap(fieldName, keyStrings)) {//检查 设置的特殊key
+        String[] choiceData = keyStrings.get(fieldName);
         date = choiceData[RandomUtils.getInt(choiceData.length)];
       }
       return date;
@@ -248,15 +289,16 @@ public class DataVirtualBuilder<T> {
   private <K> K checkDefaultRule(String key, HashMap<String, RandomDataInterface<K>> hashMap,
       K defaultValue) {
     String offsetKey = key.toLowerCase();
-    if (hashMap.containsKey(offsetKey)) {
-      //规则匹配参数名
-      return hashMap.get(offsetKey).getData();
-    } else {
-      for (String mapKey : hashMap.keySet()) {
-        if (offsetKey.contains(mapKey)) {
-          //参数名 匹配规则
-          return hashMap.get(mapKey).getData();
-        }
+
+    //优化查找过程 如果全匹配
+    RandomDataInterface<K> value = hashMap.get(offsetKey);
+    if (value != null) {
+      return value.getRandomData();
+    }
+    for (String mapKey : hashMap.keySet()) {
+      if (offsetKey.contains(mapKey)) {
+        //参数名 匹配规则
+        return hashMap.get(mapKey).getRandomData();
       }
     }
     return defaultValue;//默认值
@@ -281,18 +323,18 @@ public class DataVirtualBuilder<T> {
     hashMap.put("content", new RandomDataStringChinese(20));
     hashMap.put("desc", new RandomDataStringChinese(20));
     hashMap.put("value", new RandomDataStringSymbol(8));
-    hashMap.put("tags",new RandomDataStringNumber(3));
+    hashMap.put("tags", new RandomDataStringNumber(3));
     hashMap.put("time", new RandomDataInterface<String>() {
       @Override
-      public String getData() {
+      public String getRandomData() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm")
             .format(new Date(System.currentTimeMillis()));
       }
     });
     hashMap.put("url", new RandomDataInterface<String>() {
       @Override
-      public String getData() {
-        return "http://www.baidu.com";
+      public String getRandomData() {
+        return "https://github.com/LiCola/VirtualData";
       }
     });
 
@@ -306,7 +348,7 @@ public class DataVirtualBuilder<T> {
     HashMap<String, RandomDataInterface<Long>> hashMap = new HashMap<>();
     hashMap.put("time", new RandomDataInterface<Long>() {
       @Override
-      public Long getData() {
+      public Long getRandomData() {
         return System.currentTimeMillis() / 1000;
       }
     });
