@@ -1,9 +1,9 @@
-package com.licola.virutal;
+package virtual;
 
 
-import static com.licola.virutal.RandomUtils.getChineseSimple;
-import static com.licola.virutal.RandomUtils.getNumberString;
-import static com.licola.virutal.RandomUtils.getSymbolString;
+import static virtual.RandomUtils.getChineseSimple;
+import static virtual.RandomUtils.getNumberString;
+import static virtual.RandomUtils.getSymbolString;
 
 /**
  * Created by 李可乐 on 2017/4/20.

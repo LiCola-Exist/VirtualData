@@ -1,4 +1,4 @@
-package com.licola.virutal;
+package virtual;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ThreadLocalRandom;

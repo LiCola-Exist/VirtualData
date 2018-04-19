@@ -2,11 +2,10 @@ package com.model.licola.virtualdata;
 
 import static org.junit.Assert.assertEquals;
 
-import com.licola.virutal.VirtualDataBuilder;
+import virtual.VirtualDataBuilder;
 import com.model.licola.virtualdata.model.CollectionUserModel;
 import com.model.licola.virtualdata.model.UserModel;
 import java.util.List;
-import java.util.Set;
 import org.junit.Test;
 
 /**

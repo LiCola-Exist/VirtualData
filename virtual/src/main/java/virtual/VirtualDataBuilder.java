@@ -1,10 +1,10 @@
-package com.licola.virutal;
+package virtual;
 
-import com.licola.virutal.RandomRuleData.RandomDataInteger;
-import com.licola.virutal.RandomRuleData.RandomDataInterface;
-import com.licola.virutal.RandomRuleData.RandomDataStringChinese;
-import com.licola.virutal.RandomRuleData.RandomDataStringNumber;
-import com.licola.virutal.RandomRuleData.RandomDataStringSymbol;
+import virtual.RandomRuleData.RandomDataInteger;
+import virtual.RandomRuleData.RandomDataInterface;
+import virtual.RandomRuleData.RandomDataStringChinese;
+import virtual.RandomRuleData.RandomDataStringNumber;
+import virtual.RandomRuleData.RandomDataStringSymbol;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
