@@ -50,10 +50,10 @@ public class VirtualDataBuilder<T> {
   private HashMap<String, String[]> keyStrings = new HashMap<>();
 
   //抛出构造实例时的异常 默认打开
-  private boolean throwNewInstanceException = true;
+  private static boolean throwNewInstanceException = true;
 
   //设置的容器大小
-  private int sizeCollection=defaultListSize;
+  private int sizeCollection = defaultListSize;
   String fieldName;//变量名
 
   private static HashMap<Class, Constructor> cacheConstructor = new HashMap<>();
@@ -110,7 +110,7 @@ public class VirtualDataBuilder<T> {
   }
 
   public VirtualDataBuilder<T> closeThrowNewInstanceException() {
-    this.throwNewInstanceException = false;
+    throwNewInstanceException = false;
     return this;
   }
 
@@ -138,10 +138,10 @@ public class VirtualDataBuilder<T> {
    *
    * @return 虚拟数据List实例
    */
-  public List<T> buildList(int size){
+  public List<T> buildList(int size) {
     checkSizeArg(size);
     List<T> list = new ArrayList<>(size);
-    sizeCollection=size;
+    sizeCollection = size;
     try {
       for (int i = 0; i < size; i++) {
         list.add(getVirtualData());
@@ -152,14 +152,14 @@ public class VirtualDataBuilder<T> {
     }
   }
 
-  public Set<T> buildSet(){
+  public Set<T> buildSet() {
     return buildSet(defaultListSize);
   }
 
   public Set<T> buildSet(int size) {
     checkSizeArg(size);
     Set<T> set = new HashSet<>(getMapCapacity(size));
-    sizeCollection=size;
+    sizeCollection = size;
     try {
       for (int i = 0; i < size; i++) {
         set.add(getVirtualData());
@@ -183,7 +183,7 @@ public class VirtualDataBuilder<T> {
 
     if (tClass.isInterface()) {
       if (throwNewInstanceException) {
-        throw new InstantiationException("无法实例化接口，请输入明确的类class");
+        throw new InstantiationException("无法实例化接口:" + tClass.getName() + " 请输入明确的类class");
       } else {
         return null;
       }
@@ -204,7 +204,7 @@ public class VirtualDataBuilder<T> {
 
     if (constructor == null) {
       throw new InstantiationException(
-          "无法初始化该类：" + classTarget.getName() + " 没有空参构造方法 请添加该类的空参构造方法");
+          "无法初始化该类：" + tClass.getName() + " 没有空参构造方法 请添加该类的空参构造方法");
     }
 
     Object object = constructor.newInstance();
@@ -382,6 +382,7 @@ public class VirtualDataBuilder<T> {
 
 
   public static final int MAX_POWER_OF_TWO = 1 << (Integer.SIZE - 2);
+
   private int getMapCapacity(int fixSize) {
     if (fixSize < 3) {
       return fixSize + 1;
