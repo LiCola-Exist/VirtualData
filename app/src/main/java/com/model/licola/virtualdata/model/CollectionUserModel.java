@@ -1,6 +1,7 @@
 package com.model.licola.virtualdata.model;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by LiCola on 2018/3/15.
@@ -16,16 +17,16 @@ public class CollectionUserModel {
   public String des;
   public CommodityModel commodityModel;
   public List<UserModel> userModels;
-
-
+  public Set<String> names;
 
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("CollectionUserModel{");
-    sb.append("userModels=").append(userModels);
-    sb.append(", times=").append(times);
+    sb.append("times=").append(times);
     sb.append(", des='").append(des).append('\'');
     sb.append(", commodityModel=").append(commodityModel);
+    sb.append(", userModels=").append(userModels);
+    sb.append(", names=").append(names);
     sb.append('}');
     return sb.toString();
   }

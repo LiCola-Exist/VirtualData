@@ -1,10 +1,5 @@
 package virtual;
 
-import virtual.RandomRuleData.RandomDataInteger;
-import virtual.RandomRuleData.RandomDataInterface;
-import virtual.RandomRuleData.RandomDataStringChinese;
-import virtual.RandomRuleData.RandomDataStringNumber;
-import virtual.RandomRuleData.RandomDataStringSymbol;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -18,6 +13,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import virtual.RandomRuleData.RandomDataInteger;
+import virtual.RandomRuleData.RandomDataInterface;
+import virtual.RandomRuleData.RandomDataStringChinese;
+import virtual.RandomRuleData.RandomDataStringNumber;
+import virtual.RandomRuleData.RandomDataStringSymbol;
 
 /**
  * Created by 李可乐 on 2017/4/17.
@@ -43,13 +43,17 @@ public class VirtualDataBuilder<T> {
   private Class<T> classTarget;
 
   //非必要参数
+
   //外部设置 提供给某些字段名的 随机值数组
   private HashMap<String, int[]> keyInts = new HashMap<>();
   private HashMap<String, long[]> keyLongs = new HashMap<>();
   private HashMap<String, String[]> keyStrings = new HashMap<>();
 
+  //抛出构造实例时的异常 默认打开
+  private boolean throwNewInstanceException = true;
 
-  int sizeCollection = defaultListSize;
+  //设置的容器大小
+  private int sizeCollection=defaultListSize;
   String fieldName;//变量名
 
   private static HashMap<Class, Constructor> cacheConstructor = new HashMap<>();
@@ -75,17 +79,6 @@ public class VirtualDataBuilder<T> {
   public static <T> VirtualDataBuilder<T> virtual(Class<T> classTarget) {
     return new VirtualDataBuilder<>(classTarget);
   }
-
-  /**
-   * 虚拟List<Model>实例
-   *
-   * @param sizeList 指定的数据长度
-   * @param <T> 类
-   */
-  public static <T> VirtualDataBuilder<T> virtual(Class<T> classTarget, int sizeList) {
-    return new VirtualDataBuilder<>(classTarget).setSizeCollection(sizeList);
-  }
-
 
   private VirtualDataBuilder(Class<T> classTarget) {
     this.classTarget = classTarget;
@@ -116,6 +109,11 @@ public class VirtualDataBuilder<T> {
     return this;
   }
 
+  public VirtualDataBuilder<T> closeThrowNewInstanceException() {
+    this.throwNewInstanceException = false;
+    return this;
+  }
+
   /**
    * 构造泛型对象
    *
@@ -130,16 +128,22 @@ public class VirtualDataBuilder<T> {
     }
   }
 
+
+  public List<T> buildList() {
+    return buildList(defaultListSize);
+  }
+
   /**
    * 构造泛型的List对象
    *
    * @return 虚拟数据List实例
    */
-  public List<T> buildList() {
-    checkSizeArg(sizeCollection);
-    List<T> list = new ArrayList<>(sizeCollection);
+  public List<T> buildList(int size){
+    checkSizeArg(size);
+    List<T> list = new ArrayList<>(size);
+    sizeCollection=size;
     try {
-      for (int i = 0; i < sizeCollection; i++) {
+      for (int i = 0; i < size; i++) {
         list.add(getVirtualData());
       }
       return list;
@@ -149,10 +153,15 @@ public class VirtualDataBuilder<T> {
   }
 
   public Set<T> buildSet(){
-    checkSizeArg(sizeCollection);
-    Set<T> set = new HashSet<>(sizeCollection);
+    return buildSet(defaultListSize);
+  }
+
+  public Set<T> buildSet(int size) {
+    checkSizeArg(size);
+    Set<T> set = new HashSet<>(getMapCapacity(size));
+    sizeCollection=size;
     try {
-      for (int i = 0; i < sizeCollection; i++) {
+      for (int i = 0; i < size; i++) {
         set.add(getVirtualData());
       }
       return set;
@@ -172,15 +181,23 @@ public class VirtualDataBuilder<T> {
 
     Class<?> tClass = classTarget;
 
+    if (tClass.isInterface()) {
+      if (throwNewInstanceException) {
+        throw new InstantiationException("无法实例化接口，请输入明确的类class");
+      } else {
+        return null;
+      }
+    }
+
     Constructor constructor = cacheConstructor.get(tClass);
 
     if (constructor == null) {
       //遍历构造方法 查询是否有空参构造方法
-      for (Constructor item :
-          tClass.getConstructors()) {
+      for (Constructor item : tClass.getConstructors()) {
         if (item.getParameterTypes().length == 0) {
           constructor = item;
           cacheConstructor.put(tClass, item);
+          break;
         }
       }
     }
@@ -209,17 +226,17 @@ public class VirtualDataBuilder<T> {
           list.add(getDataByTypeAndName(fieldName, parameterClass));
         }
         objectData = list;
-      } else if (fieldClass.isAssignableFrom(Map.class)) {
-        //Map类 无法明确参数名 无法构造
-        objectData = Collections.EMPTY_MAP;
       } else if (fieldClass.isAssignableFrom(Set.class)) {
         //Set类
         Class<?> parameterClass = getParameterClass(itemField);
-        Set set = new HashSet();
+        Set set = new HashSet(getMapCapacity(sizeCollection));
         for (int i = 0; i < sizeCollection; i++) {
           set.add(getDataByTypeAndName(fieldName, parameterClass));
         }
         objectData = set;
+      } else if (fieldClass.isAssignableFrom(Map.class)) {
+        //Map类 key-value两个参数不能明确参数名 无法构造
+        objectData = Collections.EMPTY_MAP;
       } else {
         //其他类 包括基类类型和包装类型
         objectData = getDataByTypeAndName(fieldName, fieldClass);
@@ -361,5 +378,18 @@ public class VirtualDataBuilder<T> {
     hashMap.put("money", new RandomDataInteger(10000));
     hashMap.put("age", new RandomDataInteger(100));
     return hashMap;
+  }
+
+
+  public static final int MAX_POWER_OF_TWO = 1 << (Integer.SIZE - 2);
+  private int getMapCapacity(int fixSize) {
+    if (fixSize < 3) {
+      return fixSize + 1;
+    }
+
+    if (fixSize < MAX_POWER_OF_TWO) {
+      return fixSize + fixSize / 3;
+    }
+    return Integer.MAX_VALUE;
   }
 }
