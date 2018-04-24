@@ -14,6 +14,7 @@ import java.util.Set;
 public class CollectionUserModel {
 
   public int times;
+  public String userGitUrl;
   public String des;
   public CommodityModel commodityModel;
   public List<UserModel> userModels;
@@ -23,6 +24,7 @@ public class CollectionUserModel {
   public String toString() {
     final StringBuilder sb = new StringBuilder("CollectionUserModel{");
     sb.append("times=").append(times);
+    sb.append(", userGitUrl='").append(userGitUrl).append('\'');
     sb.append(", des='").append(des).append('\'');
     sb.append(", commodityModel=").append(commodityModel);
     sb.append(", userModels=").append(userModels);

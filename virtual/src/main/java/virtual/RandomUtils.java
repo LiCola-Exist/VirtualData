@@ -13,16 +13,16 @@ public class RandomUtils {
     return ThreadLocalRandom.current();
   }
 
-  public static int getInt(int max) {
-    return getRandomInstance().nextInt(max);
+  public static int getInt(int bound) {
+    return getRandomInstance().nextInt(bound);
   }
 
-  public static int getInt(int begin,int end) {
-    return getRandomInstance().nextInt(begin,end);
+  public static int getInt(int begin, int end) {
+    return getRandomInstance().nextInt(begin, end);
   }
 
-  public static long getLong(int max) {
-    return getRandomInstance().nextLong(max);
+  public static long getLong(int bound) {
+    return getRandomInstance().nextLong(bound);
   }
 
   public static boolean getBoolean() {
@@ -41,29 +41,48 @@ public class RandomUtils {
    * 得到数字组成的随机字符串
    */
   public static String getNumberString(int length) {
-    StringBuilder stringBuilder = new StringBuilder(length);
-    if (length <= 1) {//一位长度
-      return stringBuilder.append(getRandomInstance().nextInt(10)).toString();
-    }
-    for (int i = 0; i < length; i++) {
-      if (i == 0) {//防止出现首位为0的数字
-        stringBuilder.append(getRandomInstance().nextInt(1, 10));
-      } else {
-        stringBuilder.append(getRandomInstance().nextInt(10));
-      }
-    }
-    return stringBuilder.toString();
+    return getNumberLength(length).toString();
   }
 
+  public static String getPhoneNumberString() {
+    return "170" + getNumberString(8);
+  }
 
+  public static Integer getNumberLength(int length) {
+    int scale = 10;
+    int begin = (length - 1) * scale;
+    int end = 1;
+    while (length > 0) {
+      end *= scale;
+      length--;
+    }
+    return getRandomInstance().nextInt(begin, end);
+  }
+
+  public static String getAlphabetString(int length) {
+    char[] chars = new char[length];
+    for (int i = 0; i < length; i++) {
+      chars[i] = getAlphabet();
+    }
+    return new String(chars);
+  }
+
+  private static char getAlphabet() {
+    int character = getRandomInstance().nextInt(65, 122);
+    if (character > 90 && character < 97) {
+      //修正大小写字母间的符号显示
+      character += 6;
+    }
+    return (char) character;
+  }
 
   /**
-   * 得到随机符号组成的字符串
+   * 得到符号/字母/数字组成的随机字符串
    */
   public static String getSymbolString(int length) {
     StringBuilder stringBuilder = new StringBuilder(length);
     for (int i = 0; i < length; i++) {
-      stringBuilder.append((char) getRandomInstance().nextInt(33, 128));
+      stringBuilder.append((char) getRandomInstance().nextInt(33, 126));//33~126的ASCII码表数值
     }
     return stringBuilder.toString();
   }

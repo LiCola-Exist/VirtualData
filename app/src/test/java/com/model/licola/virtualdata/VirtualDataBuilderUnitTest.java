@@ -2,11 +2,12 @@ package com.model.licola.virtualdata;
 
 import static org.junit.Assert.assertEquals;
 
-import virtual.VirtualDataBuilder;
 import com.model.licola.virtualdata.model.CollectionUserModel;
 import com.model.licola.virtualdata.model.UserModel;
 import java.util.List;
 import org.junit.Test;
+import virtual.RandomUtils;
+import virtual.VirtualDataBuilder;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -15,6 +16,13 @@ import org.junit.Test;
  */
 public class VirtualDataBuilderUnitTest {
 
+
+  @Test
+  public void testRandomRule() {
+    String numberString = RandomUtils.getNumberString(2);
+    System.out.println(numberString);
+    assertEquals(false, numberString.equals(""));
+  }
 
   @Test
   public void testString() throws Exception {

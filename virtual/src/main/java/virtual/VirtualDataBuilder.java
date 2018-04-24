@@ -13,11 +13,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import virtual.RandomRuleData.RandomDataInteger;
-import virtual.RandomRuleData.RandomDataInterface;
-import virtual.RandomRuleData.RandomDataStringChinese;
-import virtual.RandomRuleData.RandomDataStringNumber;
-import virtual.RandomRuleData.RandomDataStringSymbol;
+import virtual.RandomRule.RandomInteger;
+import virtual.RandomRule.RandomInterface;
+import virtual.RandomRule.RandomLong;
+import virtual.RandomRule.RandomStringAlphabet;
+import virtual.RandomRule.RandomStringChinese;
+import virtual.RandomRule.RandomStringNumber;
+import virtual.RandomRule.RandomStringPhoneNumber;
+import virtual.RandomRule.RandomStringSymbol;
 
 /**
  * Created by 李可乐 on 2017/4/17.
@@ -34,10 +37,14 @@ import virtual.RandomRuleData.RandomDataStringSymbol;
 public class VirtualDataBuilder<T> {
 
   //默认配置
-  private static final HashMap<String, RandomRuleData.RandomDataInterface<String>> defaultStrings = getDefaultStringRule();
-  private static final HashMap<String, RandomDataInterface<Integer>> defaultIntegers = getDefaultIntegerRule();
-  private static final HashMap<String, RandomDataInterface<Long>> defaultLongs = getDefaultLongRule();
+  private static final HashMap<String, RandomInterface<String>> randomStrings = getDefaultStringRule();
+  private static final HashMap<String, RandomInterface<Integer>> randomIntegers = getDefaultIntegerRule();
+  private static final HashMap<String, RandomInterface<Long>> randomLongs = getDefaultLongRule();
   private static final int defaultListSize = 8;
+
+  private static final Long defaultLong = 0L;
+  private static final Integer defaultInteger = 0;
+  private static final String defaultString = "default";
 
   //必要参数
   private Class<T> classTarget;
@@ -59,11 +66,11 @@ public class VirtualDataBuilder<T> {
   private static HashMap<Class, Constructor> cacheConstructor = new HashMap<>();
 
   public static List<String> VirtualStrings(int size) {
-    return VirtualSimpleList(size, new RandomDataStringSymbol(10));
+    return VirtualSimpleList(size, new RandomStringSymbol(10));
   }
 
   public static <T> List<T> VirtualSimpleList(int size,
-      RandomDataInterface<T> dataInterface) {
+      RandomInterface<T> dataInterface) {
     checkSizeArg(size);
 
     List<T> dataList = new ArrayList<>(size);
@@ -271,7 +278,7 @@ public class VirtualDataBuilder<T> {
     } else if (fieldClass.isAssignableFrom(int.class) || fieldClass
         .isAssignableFrom(Integer.class)) {
       //整数类型（基本类型和包装类）
-      Integer data = checkDefaultRule(fieldName, defaultIntegers, 0);
+      Integer data = checkDefaultRule(fieldName, randomIntegers, defaultInteger);
       if (checkSetKeyMap(fieldName, keyInts)) {
         int[] choiceData = keyInts.get(fieldName);
         data = choiceData[RandomUtils.getInt(choiceData.length)];
@@ -279,7 +286,7 @@ public class VirtualDataBuilder<T> {
       return data;
     } else if (fieldClass.isAssignableFrom(long.class) || fieldClass.isAssignableFrom(Long.class)) {
       //长整数整型 （基本类型和包装类）
-      Long date = checkDefaultRule(fieldName, defaultLongs, 0L);
+      Long date = checkDefaultRule(fieldName, randomLongs, defaultLong);
       if (checkSetKeyMap(fieldName, keyLongs)) {
         long[] choiceData = keyLongs.get(fieldName);
         date = choiceData[RandomUtils.getInt(choiceData.length)];
@@ -287,7 +294,7 @@ public class VirtualDataBuilder<T> {
       return date;
     } else if (fieldClass.isAssignableFrom(String.class)) {
       //String
-      String date = checkDefaultRule(fieldName, defaultStrings, "default");
+      String date = checkDefaultRule(fieldName, randomStrings, defaultString);
       if (checkSetKeyMap(fieldName, keyStrings)) {//检查 设置的特殊key
         String[] choiceData = keyStrings.get(fieldName);
         date = choiceData[RandomUtils.getInt(choiceData.length)];
@@ -303,12 +310,12 @@ public class VirtualDataBuilder<T> {
   /**
    * 检查默认规则 如果匹配返回特定规则下的随机方法 否则返回默认值
    */
-  private <K> K checkDefaultRule(String key, HashMap<String, RandomDataInterface<K>> hashMap,
+  private <K> K checkDefaultRule(String key, HashMap<String, RandomInterface<K>> hashMap,
       K defaultValue) {
     String offsetKey = key.toLowerCase();
 
     //优化查找过程 如果全匹配
-    RandomDataInterface<K> value = hashMap.get(offsetKey);
+    RandomInterface<K> value = hashMap.get(offsetKey);
     if (value != null) {
       return value.getRandomData();
     }
@@ -331,29 +338,20 @@ public class VirtualDataBuilder<T> {
    * 保存的是key-接口对象，使用时调用接口方法
    * 当字段名包含key时 应用规则 注意顺序：当字段名包含多个key时 匹配最先一个
    */
-  private static HashMap<String, RandomDataInterface<String>> getDefaultStringRule() {
-    HashMap<String, RandomRuleData.RandomDataInterface<String>> hashMap = new HashMap<>();
-    hashMap.put("id", new RandomDataStringNumber(8));
-    hashMap.put("name", new RandomDataStringChinese(6));
-    hashMap.put("phone", new RandomDataStringNumber(11));
-    hashMap.put("title", new RandomDataStringChinese(8));
-    hashMap.put("content", new RandomDataStringChinese(20));
-    hashMap.put("desc", new RandomDataStringChinese(20));
-    hashMap.put("value", new RandomDataStringSymbol(8));
-    hashMap.put("tags", new RandomDataStringNumber(3));
-    hashMap.put("time", new RandomDataInterface<String>() {
-      @Override
-      public String getRandomData() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm")
-            .format(new Date(System.currentTimeMillis()));
-      }
-    });
-    hashMap.put("url", new RandomDataInterface<String>() {
-      @Override
-      public String getRandomData() {
-        return "https://github.com/LiCola/VirtualData";
-      }
-    });
+  private static HashMap<String, RandomInterface<String>> getDefaultStringRule() {
+    HashMap<String, RandomInterface<String>> hashMap = new HashMap<>();
+    hashMap.put("id", new RandomStringNumber(4));
+    hashMap.put("name", new RandomStringChinese(6));
+    hashMap.put("number", new RandomStringAlphabet(8));
+    hashMap.put("phone", new RandomStringPhoneNumber());
+    hashMap.put("title", new RandomStringChinese(8));
+    hashMap.put("content", new RandomStringChinese(20));
+    hashMap.put("desc", new RandomStringChinese(20));
+    hashMap.put("value", new RandomStringSymbol(8));
+    hashMap.put("tags", new RandomStringNumber(3));
+    hashMap.put("time", () -> new SimpleDateFormat("yyyy-MM-dd HH:mm")
+        .format(new Date(System.currentTimeMillis())));
+    hashMap.put("url", () -> "https://github.com/LiCola/VirtualData");
 
     return hashMap;
   }
@@ -361,22 +359,19 @@ public class VirtualDataBuilder<T> {
   /**
    * 提供Long类型的默认规则
    */
-  private static HashMap<String, RandomDataInterface<Long>> getDefaultLongRule() {
-    HashMap<String, RandomDataInterface<Long>> hashMap = new HashMap<>();
-    hashMap.put("time", new RandomDataInterface<Long>() {
-      @Override
-      public Long getRandomData() {
-        return System.currentTimeMillis() / 1000;
-      }
-    });
+  private static HashMap<String, RandomInterface<Long>> getDefaultLongRule() {
+    HashMap<String, RandomInterface<Long>> hashMap = new HashMap<>();
+    hashMap.put("time", () -> System.currentTimeMillis() / 1000);
+    hashMap.put("price", new RandomLong(10000));
+    hashMap.put("money", new RandomLong(10000));
     return hashMap;
   }
 
-  private static HashMap<String, RandomDataInterface<Integer>> getDefaultIntegerRule() {
-    HashMap<String, RandomDataInterface<Integer>> hashMap = new HashMap<>();
-    hashMap.put("price", new RandomDataInteger(100000));
-    hashMap.put("money", new RandomDataInteger(10000));
-    hashMap.put("age", new RandomDataInteger(100));
+  private static HashMap<String, RandomInterface<Integer>> getDefaultIntegerRule() {
+    HashMap<String, RandomInterface<Integer>> hashMap = new HashMap<>();
+    hashMap.put("price", new RandomInteger(100000));
+    hashMap.put("money", new RandomInteger(10000));
+    hashMap.put("age", new RandomInteger(100));
     return hashMap;
   }
 
