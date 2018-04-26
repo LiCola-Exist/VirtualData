@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView = findViewById(R.id.txt_content);
 
     CollectionUserModel models = VirtualDataBuilder.virtual(CollectionUserModel.class)
-        .addKeyInts("times", new int[]{10, 20, 30})
+        .addKeyInts("times", new Integer[]{10, 20, 30})
         .closeThrowNewInstanceException()
         .build();
     textView.setText(models.toString());

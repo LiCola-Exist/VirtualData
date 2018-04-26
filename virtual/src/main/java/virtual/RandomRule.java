@@ -16,7 +16,6 @@ public class RandomRule {
 
   /**
    * 泛型通用接口
-   * @param <T>
    */
   public interface RandomInterface<T> {
 
@@ -41,7 +40,7 @@ public class RandomRule {
     }
   }
 
-  static class RandomStringAlphabet implements RandomInterface<String>{
+  static class RandomStringAlphabet implements RandomInterface<String> {
 
     private int length;
 
@@ -84,7 +83,7 @@ public class RandomRule {
     }
   }
 
-  static class RandomStringPhoneNumber implements RandomInterface<String>{
+  static class RandomStringPhoneNumber implements RandomInterface<String> {
 
     @Override
     public String getRandomData() {
@@ -92,6 +91,9 @@ public class RandomRule {
     }
   }
 
+  /**
+   * 在0~max范围内的随机整数
+   */
   static class RandomInteger implements RandomInterface<Integer> {
 
     private int max;
@@ -102,11 +104,29 @@ public class RandomRule {
 
     @Override
     public Integer getRandomData() {
-      return RandomUtils.getInt(max+1);
+      return RandomUtils.getInt(max + 1);
     }
   }
 
-  static class RandomLong implements RandomInterface<Long>{
+  /**
+   * 在规定数值位数的随机整数
+   * 如 length=2，就是整数两位范围，即10~99
+   */
+  static class RandomNumberWithLength implements RandomInterface<Integer> {
+
+    private int length;
+
+    RandomNumberWithLength(int length) {
+      this.length = length;
+    }
+
+    @Override
+    public Integer getRandomData() {
+      return RandomUtils.getNumberLength(length);
+    }
+  }
+
+  static class RandomLong implements RandomInterface<Long> {
 
     private int max;
 
@@ -116,9 +136,50 @@ public class RandomRule {
 
     @Override
     public Long getRandomData() {
-      return RandomUtils.getLong(max+1);
+      return RandomUtils.getLong(max + 1);
     }
   }
 
+  static class RandomFloat implements RandomInterface<Float> {
+
+    private double origin;
+    private double bound;
+
+    public RandomFloat(double origin, double bound) {
+      this.origin = origin;
+      this.bound = bound;
+    }
+
+    @Override
+    public Float getRandomData() {
+      return (float) RandomUtils.getDouble(origin, bound);
+    }
+
+  }
+
+  static class RandomDouble implements RandomInterface<Double> {
+
+    private double origin;
+    private double bound;
+
+    public RandomDouble(double origin, double bound) {
+      this.origin = origin;
+      this.bound = bound;
+    }
+
+    @Override
+    public Double getRandomData() {
+      return RandomUtils.getDouble(origin, bound);
+    }
+
+  }
+
+  static class RandomBoolean implements RandomInterface<Boolean>{
+
+    @Override
+    public Boolean getRandomData() {
+      return RandomUtils.getBoolean();
+    }
+  }
 
 }

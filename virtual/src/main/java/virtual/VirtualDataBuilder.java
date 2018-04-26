@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import virtual.RandomRule.RandomBoolean;
+import virtual.RandomRule.RandomDouble;
+import virtual.RandomRule.RandomFloat;
 import virtual.RandomRule.RandomInteger;
 import virtual.RandomRule.RandomInterface;
 import virtual.RandomRule.RandomLong;
@@ -37,13 +40,19 @@ import virtual.RandomRule.RandomStringSymbol;
 public class VirtualDataBuilder<T> {
 
   //默认配置
-  private static final HashMap<String, RandomInterface<String>> randomStrings = getDefaultStringRule();
+  private static final HashMap<String, RandomInterface<Boolean>> randomBooleans = getDefaultBooleanRule();
   private static final HashMap<String, RandomInterface<Integer>> randomIntegers = getDefaultIntegerRule();
   private static final HashMap<String, RandomInterface<Long>> randomLongs = getDefaultLongRule();
+  private static final HashMap<String, RandomInterface<Float>> randomFloats = getDefaultFloatRule();
+  private static final HashMap<String, RandomInterface<Double>> randomDoubles = getDefaultDoubleRule();
+  private static final HashMap<String, RandomInterface<String>> randomStrings = getDefaultStringRule();
   private static final int defaultListSize = 8;
 
-  private static final Long defaultLong = 0L;
+  private static final Boolean defaultBoolean = false;
   private static final Integer defaultInteger = 0;
+  private static final Long defaultLong = 0L;
+  private static final Float defaultFloat = 0.0f;
+  private static final Double defaultDouble = 0.0d;
   private static final String defaultString = "default";
 
   //必要参数
@@ -52,9 +61,13 @@ public class VirtualDataBuilder<T> {
   //非必要参数
 
   //外部设置 提供给某些字段名的 随机值数组
-  private HashMap<String, int[]> keyInts = new HashMap<>();
-  private HashMap<String, long[]> keyLongs = new HashMap<>();
+  private HashMap<String, Boolean[]> keyBoolean = new HashMap<>();
+  private HashMap<String, Integer[]> keyInts = new HashMap<>();
+  private HashMap<String, Long[]> keyLongs = new HashMap<>();
+  private HashMap<String, Float[]> keyFloats = new HashMap<>();
+  private HashMap<String, Double[]> keyDoubles = new HashMap<>();
   private HashMap<String, String[]> keyStrings = new HashMap<>();
+
 
   //抛出构造实例时的异常 默认打开
   private static boolean throwNewInstanceException = true;
@@ -91,7 +104,7 @@ public class VirtualDataBuilder<T> {
     this.classTarget = classTarget;
   }
 
-  public VirtualDataBuilder<T> addKeyInts(String keyField, int[] data) {
+  public VirtualDataBuilder<T> addKeyInts(String keyField, Integer[] data) {
     keyInts.put(keyField, data);
     return this;
   }
@@ -101,10 +114,26 @@ public class VirtualDataBuilder<T> {
     return this;
   }
 
-  public VirtualDataBuilder<T> addKeyLongs(String keyField, long[] data) {
+  public VirtualDataBuilder<T> addKeyLongs(String keyField, Long[] data) {
     keyLongs.put(keyField, data);
     return this;
   }
+
+  public VirtualDataBuilder<T> addKeyFloats(String keyField, Float[] data) {
+    keyFloats.put(keyField, data);
+    return this;
+  }
+
+  public VirtualDataBuilder<T> addKeyDoubles(String keyField, Double[] data) {
+    keyDoubles.put(keyField, data);
+    return this;
+  }
+
+  public VirtualDataBuilder<T> addKeyBoolean(String keyField, Boolean data) {
+    keyBoolean.put(keyField, new Boolean[]{data});
+    return this;
+  }
+
 
   public VirtualDataBuilder<T> setSizeCollection(int size) {
     this.sizeCollection = size;
@@ -265,40 +294,36 @@ public class VirtualDataBuilder<T> {
       throws IllegalAccessException, InvocationTargetException, InstantiationException {
     if (fieldClass.isAssignableFrom(boolean.class) || fieldClass.isAssignableFrom(Boolean.class)) {
       //布尔类型 （基本类型和包装类）
-      return RandomUtils.getBoolean();
+      Boolean data = checkDefaultRuleAndGet(fieldName, randomBooleans, defaultBoolean);
+      data = checkKeyMapAndGet(fieldName, keyBoolean, data);
+      return data;
     } else if (fieldClass.isAssignableFrom(float.class) || fieldClass
         .isAssignableFrom(Float.class)) {
-      //float浮点类型
-      return RandomUtils.getFloat();
+      Float data = checkDefaultRuleAndGet(fieldName, randomFloats, defaultFloat);
+      data = checkKeyMapAndGet(fieldName, keyFloats, data);
+      return data;
     } else if (fieldClass.isAssignableFrom(double.class) || fieldClass
         .isAssignableFrom(Double.class)) {
       //double浮点类型
-      return RandomUtils.getDouble();
+      Double data = checkDefaultRuleAndGet(fieldName, randomDoubles, defaultDouble);
+      data = checkKeyMapAndGet(fieldName, keyDoubles, data);
+      return data;
     } else if (fieldClass.isAssignableFrom(int.class) || fieldClass
         .isAssignableFrom(Integer.class)) {
       //整数类型（基本类型和包装类）
-      Integer data = checkDefaultRule(fieldName, randomIntegers, defaultInteger);
-      if (checkSetKeyMap(fieldName, keyInts)) {
-        int[] choiceData = keyInts.get(fieldName);
-        data = choiceData[RandomUtils.getInt(choiceData.length)];
-      }
+      Integer data = checkDefaultRuleAndGet(fieldName, randomIntegers, defaultInteger);
+      data = checkKeyMapAndGet(fieldName, keyInts, data);
       return data;
     } else if (fieldClass.isAssignableFrom(long.class) || fieldClass.isAssignableFrom(Long.class)) {
       //长整数整型 （基本类型和包装类）
-      Long date = checkDefaultRule(fieldName, randomLongs, defaultLong);
-      if (checkSetKeyMap(fieldName, keyLongs)) {
-        long[] choiceData = keyLongs.get(fieldName);
-        date = choiceData[RandomUtils.getInt(choiceData.length)];
-      }
-      return date;
+      Long data = checkDefaultRuleAndGet(fieldName, randomLongs, defaultLong);
+      data = checkKeyMapAndGet(fieldName, keyLongs, data);
+      return data;
     } else if (fieldClass.isAssignableFrom(String.class)) {
       //String
-      String date = checkDefaultRule(fieldName, randomStrings, defaultString);
-      if (checkSetKeyMap(fieldName, keyStrings)) {//检查 设置的特殊key
-        String[] choiceData = keyStrings.get(fieldName);
-        date = choiceData[RandomUtils.getInt(choiceData.length)];
-      }
-      return date;
+      String data = checkDefaultRuleAndGet(fieldName, randomStrings, defaultString);
+      data = checkKeyMapAndGet(fieldName, keyStrings, data);
+      return data;
     } else {
       //其他类 一般指 自定义的类
       return getVirtualData(fieldClass);
@@ -306,10 +331,13 @@ public class VirtualDataBuilder<T> {
 
   }
 
+
   /**
-   * 检查默认规则 如果匹配返回特定规则下的随机方法 否则返回默认值
+   * 检查默认规则的返回值
+   * 如果匹配（部分匹配） 返回特定规则下的随机值
+   * 否则 返回默认值
    */
-  private <K> K checkDefaultRule(String key, HashMap<String, RandomInterface<K>> hashMap,
+  private <K> K checkDefaultRuleAndGet(String key, HashMap<String, RandomInterface<K>> hashMap,
       K defaultValue) {
     String offsetKey = key.toLowerCase();
 
@@ -327,8 +355,22 @@ public class VirtualDataBuilder<T> {
     return defaultValue;//默认值
   }
 
-  private <K> boolean checkSetKeyMap(String fieldName, HashMap<String, K> hashMap) {
-    return !(hashMap == null || hashMap.isEmpty()) && hashMap.containsKey(fieldName);
+  /**
+   * 检查设置的key的返回值
+   * 如果匹配（完全匹配） 返回外部设置的数组中随机位的值
+   * 否则 返回默认值
+   */
+  private <K> K checkKeyMapAndGet(String fieldName, HashMap<String, K[]> hashMap, K defaultValue) {
+
+    if (hashMap.isEmpty()) {
+      return defaultValue;
+    }
+    K[] values = hashMap.get(fieldName);
+    if (values == null) {
+      return defaultValue;
+    }
+    return values[RandomUtils.getInt(values.length)];
+
   }
 
 
@@ -355,6 +397,12 @@ public class VirtualDataBuilder<T> {
     return hashMap;
   }
 
+  private static HashMap<String, RandomInterface<Boolean>> getDefaultBooleanRule() {
+    HashMap<String, RandomInterface<Boolean>> hashMap = new HashMap<>();
+    hashMap.put("is", new RandomBoolean());
+    return hashMap;
+  }
+
   /**
    * 提供Long类型的默认规则
    */
@@ -371,6 +419,24 @@ public class VirtualDataBuilder<T> {
     hashMap.put("price", new RandomInteger(100000));
     hashMap.put("money", new RandomInteger(10000));
     hashMap.put("age", new RandomInteger(100));
+    hashMap.put("level", new RandomInteger(100));
+    hashMap.put("grade", new RandomInteger(100));
+    return hashMap;
+  }
+
+  private static HashMap<String, RandomInterface<Float>> getDefaultFloatRule() {
+    HashMap<String, RandomInterface<Float>> hashMap = new HashMap<>();
+    hashMap.put("level", new RandomFloat(0, 10));
+    hashMap.put("grade", new RandomFloat(0, 10));
+
+    return hashMap;
+  }
+
+  private static HashMap<String, RandomInterface<Double>> getDefaultDoubleRule() {
+    HashMap<String, RandomInterface<Double>> hashMap = new HashMap<>();
+    hashMap.put("level", new RandomDouble(0, 10));
+    hashMap.put("grade", new RandomDouble(0, 10));
+
     return hashMap;
   }
 

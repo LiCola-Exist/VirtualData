@@ -37,6 +37,10 @@ public class RandomUtils {
     return getRandomInstance().nextDouble();
   }
 
+  public static double getDouble(double origin, double bound) {
+    return getRandomInstance().nextDouble(origin,bound);
+  }
+
   /**
    * 得到数字组成的随机字符串
    */

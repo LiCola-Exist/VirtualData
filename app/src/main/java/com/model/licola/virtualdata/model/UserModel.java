@@ -8,6 +8,7 @@ public class UserModel {
   public String username;
   public String phone;
   public int age;
+  public float grade;
 
   @Override
   public String toString() {
@@ -15,6 +16,7 @@ public class UserModel {
     sb.append("username='").append(username).append('\'');
     sb.append(", phone='").append(phone).append('\'');
     sb.append(", age=").append(age);
+    sb.append(", grade=").append(grade);
     sb.append('}');
     return sb.toString();
   }
