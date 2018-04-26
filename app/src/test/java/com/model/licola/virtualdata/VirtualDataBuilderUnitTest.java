@@ -46,6 +46,7 @@ public class VirtualDataBuilderUnitTest {
   public void testModels() throws Exception {
     CollectionUserModel models = VirtualDataBuilder.virtual(CollectionUserModel.class)
         .addKeyInts("times", new int[]{10, 20, 30})
+        .addKeyInts("level",new int[]{1,2,3})
         .build();
 
     assertEquals(true, !models.userModels.isEmpty());

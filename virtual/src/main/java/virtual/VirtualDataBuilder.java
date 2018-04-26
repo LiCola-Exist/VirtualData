@@ -129,7 +129,7 @@ public class VirtualDataBuilder<T> {
   public T build() {
 
     try {
-      return getVirtualData();
+      return getVirtualData(classTarget);
     } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
@@ -151,7 +151,7 @@ public class VirtualDataBuilder<T> {
     sizeCollection = size;
     try {
       for (int i = 0; i < size; i++) {
-        list.add(getVirtualData());
+        list.add(getVirtualData(classTarget));
       }
       return list;
     } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
@@ -169,7 +169,7 @@ public class VirtualDataBuilder<T> {
     sizeCollection = size;
     try {
       for (int i = 0; i < size; i++) {
-        set.add(getVirtualData());
+        set.add(getVirtualData(classTarget));
       }
       return set;
     } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
@@ -183,10 +183,8 @@ public class VirtualDataBuilder<T> {
     }
   }
 
-  private T getVirtualData()
+  private T getVirtualData(Class<?> tClass)
       throws IllegalAccessException, InstantiationException, InvocationTargetException {
-
-    Class<?> tClass = classTarget;
 
     if (tClass.isInterface()) {
       if (throwNewInstanceException) {
@@ -263,7 +261,8 @@ public class VirtualDataBuilder<T> {
   /**
    * 根据字段名 和 类型 返回数据
    */
-  private Object getDataByTypeAndName(String fieldName, Class<?> fieldClass) {
+  private Object getDataByTypeAndName(String fieldName, Class<?> fieldClass)
+      throws IllegalAccessException, InvocationTargetException, InstantiationException {
     if (fieldClass.isAssignableFrom(boolean.class) || fieldClass.isAssignableFrom(Boolean.class)) {
       //布尔类型 （基本类型和包装类）
       return RandomUtils.getBoolean();
@@ -302,7 +301,7 @@ public class VirtualDataBuilder<T> {
       return date;
     } else {
       //其他类 一般指 自定义的类
-      return virtual(fieldClass).build();
+      return getVirtualData(fieldClass);
     }
 
   }
