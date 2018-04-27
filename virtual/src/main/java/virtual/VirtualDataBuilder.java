@@ -421,21 +421,25 @@ public class VirtualDataBuilder<T> {
     hashMap.put("age", new RandomInteger(100));
     hashMap.put("level", new RandomInteger(100));
     hashMap.put("grade", new RandomInteger(100));
+    hashMap.put("process", new RandomInteger(100));
+
     return hashMap;
   }
 
   private static HashMap<String, RandomInterface<Float>> getDefaultFloatRule() {
     HashMap<String, RandomInterface<Float>> hashMap = new HashMap<>();
-    hashMap.put("level", new RandomFloat(0, 10));
-    hashMap.put("grade", new RandomFloat(0, 10));
+    hashMap.put("level", new RandomFloat(0, 100));
+    hashMap.put("grade", new RandomFloat(0, 100));
+    hashMap.put("process", new RandomFloat(0, 100));
 
     return hashMap;
   }
 
   private static HashMap<String, RandomInterface<Double>> getDefaultDoubleRule() {
     HashMap<String, RandomInterface<Double>> hashMap = new HashMap<>();
-    hashMap.put("level", new RandomDouble(0, 10));
-    hashMap.put("grade", new RandomDouble(0, 10));
+    hashMap.put("level", new RandomDouble(0, 100));
+    hashMap.put("grade", new RandomDouble(0, 100));
+    hashMap.put("process", new RandomDouble(0, 100));
 
     return hashMap;
   }
