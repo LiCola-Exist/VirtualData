@@ -5,10 +5,12 @@ package com.model.licola.virtualdata.model;
  */
 
 public class UserModel {
+
   public String username;
   public String phone;
   public int age;
   public float grade;
+  public String ase;
 
   @Override
   public String toString() {
@@ -17,6 +19,7 @@ public class UserModel {
     sb.append(", phone='").append(phone).append('\'');
     sb.append(", age=").append(age);
     sb.append(", grade=").append(grade);
+    sb.append(", ase='").append(ase).append('\'');
     sb.append('}');
     return sb.toString();
   }

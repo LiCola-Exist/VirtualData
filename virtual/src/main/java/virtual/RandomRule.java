@@ -112,19 +112,20 @@ public class RandomRule {
    * 在规定数值位数的随机整数
    * 如 length=2，就是整数两位范围，即10~99
    */
-  static class RandomNumberWithLength implements RandomInterface<Integer> {
+  static class RandomIntegerWithLength implements RandomInterface<Integer> {
 
     private int length;
 
-    RandomNumberWithLength(int length) {
+    RandomIntegerWithLength(int length) {
       this.length = length;
     }
 
     @Override
     public Integer getRandomData() {
-      return RandomUtils.getNumberLength(length);
+      return RandomUtils.getIntegerLength(length);
     }
   }
+
 
   static class RandomLong implements RandomInterface<Long> {
 
@@ -137,6 +138,24 @@ public class RandomRule {
     @Override
     public Long getRandomData() {
       return RandomUtils.getLong(max + 1);
+    }
+  }
+
+  /**
+   * 在规定数值位数的随机长整数
+   * 如 length=2，就是长整数两位范围，即10~99
+   */
+  static class RandomLongWithLength implements RandomInterface<Long> {
+
+    private int length;
+
+    RandomLongWithLength(int length) {
+      this.length = length;
+    }
+
+    @Override
+    public Long getRandomData() {
+      return RandomUtils.getLongLength(length);
     }
   }
 
@@ -174,7 +193,7 @@ public class RandomRule {
 
   }
 
-  static class RandomBoolean implements RandomInterface<Boolean>{
+  static class RandomBoolean implements RandomInterface<Boolean> {
 
     @Override
     public Boolean getRandomData() {

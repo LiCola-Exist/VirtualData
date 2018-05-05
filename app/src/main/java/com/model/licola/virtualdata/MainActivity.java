@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import com.model.licola.virtualdata.model.CollectionUserModel;
-import virtual.VirtualDataBuilder;
+import virtual.VirtualData;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,9 +15,8 @@ public class MainActivity extends AppCompatActivity {
 
     TextView textView = findViewById(R.id.txt_content);
 
-    CollectionUserModel models = VirtualDataBuilder.virtual(CollectionUserModel.class)
+    CollectionUserModel models = VirtualData.virtual(CollectionUserModel.class)
         .addKeyInts("times", new Integer[]{10, 20, 30})
-        .closeThrowNewInstanceException()
         .build();
     textView.setText(models.toString());
 

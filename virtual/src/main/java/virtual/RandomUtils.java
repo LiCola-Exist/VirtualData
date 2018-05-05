@@ -2,12 +2,22 @@ package virtual;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ThreadLocalRandom;
+import virtual.RandomRule.RandomFloat;
+import virtual.RandomRule.RandomIntegerWithLength;
+import virtual.RandomRule.RandomInterface;
+import virtual.RandomRule.RandomLongWithLength;
 
 /**
  * Created by 李可乐 on 2017/4/18.
  */
 
 public class RandomUtils {
+
+  public static final void main(String[] arg) {
+    RandomInterface random = new RandomFloat(0,100);
+    Object data = random.getRandomData();
+    System.out.println("random:" + data);
+  }
 
   private static ThreadLocalRandom getRandomInstance() {
     return ThreadLocalRandom.current();
@@ -38,30 +48,59 @@ public class RandomUtils {
   }
 
   public static double getDouble(double origin, double bound) {
-    return getRandomInstance().nextDouble(origin,bound);
+    return getRandomInstance().nextDouble(origin, bound);
   }
 
   /**
    * 得到数字组成的随机字符串
    */
   public static String getNumberString(int length) {
-    return getNumberLength(length).toString();
+    return getLongLength(length).toString();
   }
 
   public static String getPhoneNumberString() {
     return "170" + getNumberString(8);
   }
 
-  public static Integer getNumberLength(int length) {
+  public static Integer getIntegerLength(int length) {
+
+    if (length > 10 || length < 1) {
+      throw new IllegalArgumentException("length参数错误：" + length + " 整数有效范围是1<=length<=10");
+    }
+
     int scale = 10;
-    int begin = (length - 1) * scale;
+    int begin = 1;
     int end = 1;
-    while (length > 0) {
+    while (length > 1) {
+      begin *= scale;
       end *= scale;
       length--;
     }
+    end = end > Integer.MAX_VALUE / 10 ? Integer.MAX_VALUE : end * scale;
+
     return getRandomInstance().nextInt(begin, end);
   }
+
+  public static Long getLongLength(int length) {
+    if (length > 19 || length < 1) {
+      throw new IllegalArgumentException("length参数错误：" + length + " 长整数有效范围是1<=length<=19");
+    }
+
+    long scale = 10;
+    long begin = 1;
+    long end = 1;
+    while (length > 1) {
+      begin *= scale;
+      end *= scale;
+      length--;
+    }
+
+    end = end > Long.MAX_VALUE / 10 ? Long.MAX_VALUE : end * scale;
+
+
+    return getRandomInstance().nextLong(begin, end);
+  }
+
 
   public static String getAlphabetString(int length) {
     char[] chars = new char[length];

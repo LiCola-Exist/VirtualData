@@ -18,7 +18,6 @@ public class CollectionUserModel {
   public String des;
   public CommodityModel commodityModel;
   public List<UserModel> userModels;
-  public Set<String> names;
 
   @Override
   public String toString() {
@@ -28,7 +27,6 @@ public class CollectionUserModel {
     sb.append(", des='").append(des).append('\'');
     sb.append(", commodityModel=").append(commodityModel);
     sb.append(", userModels=").append(userModels);
-    sb.append(", names=").append(names);
     sb.append('}');
     return sb.toString();
   }
