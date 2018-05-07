@@ -220,8 +220,17 @@ public class VirtualData<T> {
       Object objectData;
 
       int modifiers = itemField.getModifiers();
-      if (Modifier.isFinal(modifiers) && Modifier.isStatic(modifiers)) {
-        break;
+      if (Modifier.isStatic(modifiers)) {
+
+        if (Modifier.isFinal(modifiers)) {
+          //跳过 静态final字段 一般这种变量 已经固定 无需赋值
+          break;
+        }
+
+        if (Modifier.isTransient(modifiers)) {
+          //跳过 transient变量 典型如 static transient volatile com.android.tools.ir.runtime.IncrementalChange 字段
+          break;
+        }
       }
 
       String itemFieldName = itemField.getName();

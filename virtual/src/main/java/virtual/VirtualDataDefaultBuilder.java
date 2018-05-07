@@ -101,7 +101,12 @@ public class VirtualDataDefaultBuilder implements VirtualDataBuilder {
             .format(new Date(System.currentTimeMillis()));
       }
     });
-    hashMap.put("url", () -> "https://github.com/LiCola/VirtualData");
+    hashMap.put("url", new RandomInterface<String>() {
+      @Override
+      public String getRandomData() {
+        return "https://github.com/LiCola/VirtualData";
+      }
+    });
 
     return hashMap;
   }
