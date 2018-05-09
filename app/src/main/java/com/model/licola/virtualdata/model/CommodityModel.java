@@ -1,13 +1,18 @@
 package com.model.licola.virtualdata.model;
 
+import java.util.Map;
+
 /**
  * Created by LiCola on 2018/3/15.
  */
 
 public class CommodityModel {
+
   private String title;
   private int price;
   private int level;
+  private Map<String, Integer> userMap;
+  private ImageModel imageModel;
 
   public CommodityModel() {
   }
@@ -18,37 +23,31 @@ public class CommodityModel {
     this.level = level;
   }
 
+  public Map<String, Integer> getUserMap() {
+    return userMap;
+  }
+
+  public void setUserMap(Map<String, Integer> userMap) {
+    this.userMap = userMap;
+  }
+
+  public ImageModel getImageModel() {
+    return imageModel;
+  }
+
+  public void setImageModel(ImageModel imageModel) {
+    this.imageModel = imageModel;
+  }
+
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("CommodityModel{");
     sb.append("title='").append(title).append('\'');
     sb.append(", price=").append(price);
     sb.append(", level=").append(level);
+    sb.append(", userMap=").append(userMap);
+    sb.append(", imageModel=").append(imageModel);
     sb.append('}');
     return sb.toString();
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public int getPrice() {
-    return price;
-  }
-
-  public void setPrice(int price) {
-    this.price = price;
-  }
-
-  public int getLevel() {
-    return level;
-  }
-
-  public void setLevel(int level) {
-    this.level = level;
   }
 }

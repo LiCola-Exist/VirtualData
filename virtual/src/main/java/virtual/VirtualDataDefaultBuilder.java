@@ -18,6 +18,7 @@ import virtual.RandomRule.RandomStringSymbol;
 
 /**
  * Created by LiCola on 2018/5/4.
+ * 实现Builder接口，提供默认规则
  */
 public class VirtualDataDefaultBuilder implements VirtualDataBuilder {
 

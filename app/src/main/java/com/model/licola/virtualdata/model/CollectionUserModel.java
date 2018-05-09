@@ -1,8 +1,6 @@
 package com.model.licola.virtualdata.model;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by LiCola on 2018/3/15.
@@ -18,13 +16,10 @@ public class CollectionUserModel {
    */
   public static final String Action = "action";
 
-
   public int times;
   public String userGitUrl;
   public String des;
-  public CommodityModel commodityModel;
   public List<UserModel> userModels;
-  public Map<String,Integer> userMap;
 
   @Override
   public String toString() {
@@ -32,9 +27,7 @@ public class CollectionUserModel {
     sb.append("times=").append(times);
     sb.append(", userGitUrl='").append(userGitUrl).append('\'');
     sb.append(", des='").append(des).append('\'');
-    sb.append(", commodityModel=").append(commodityModel);
     sb.append(", userModels=").append(userModels);
-    sb.append(", userMap=").append(userMap);
     sb.append('}');
     return sb.toString();
   }

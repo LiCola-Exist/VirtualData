@@ -4,6 +4,7 @@ import java.util.Map;
 
 /**
  * Created by LiCola on 2018/5/4.
+ * Builder接口，定义数据规则部件的结构
  */
 public interface VirtualDataBuilder {
 

@@ -33,7 +33,7 @@ import virtual.Logger.SystemOutLogger;
 public class VirtualData<T> {
 
   //默认配置
-  private final int defaultListSize = 10;
+  private static final int defaultListSize = 10;
   private static final Object defaultModel = null;
   private static final Boolean defaultBoolean = false;
   private static final Integer defaultInteger = 0;

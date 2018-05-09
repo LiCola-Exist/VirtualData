@@ -2,7 +2,6 @@ package com.model.licola.virtualdata;
 
 import static org.junit.Assert.assertEquals;
 
-import android.util.Log;
 import com.model.licola.virtualdata.model.CollectionUserModel;
 import com.model.licola.virtualdata.model.CommodityModel;
 import com.model.licola.virtualdata.model.UserModel;
@@ -18,7 +17,6 @@ import virtual.VirtualData;
  */
 public class VirtualDataUnitTest {
 
-
   @Test
   public void testRandomRule() {
     String numberString = RandomUtils.getNumberString(2);
@@ -27,37 +25,22 @@ public class VirtualDataUnitTest {
   }
 
   @Test
-  public void testCollection() throws Exception {
-    List<String> names = VirtualData.virtual(String.class)
-        .setFieldName("name")
-        .buildList();
-    for (String name : names) {
-      System.out.println(name);
-    }
-  }
-
-  @Test
-  public void testModelList() {
-    List<UserModel> userModels = VirtualData.virtual(UserModel.class).buildList();
-    assertEquals(true, !userModels.isEmpty());
-    for (UserModel userModel : userModels) {
-      System.out.println(userModel);
-    }
-  }
-
-  @Test
   public void testModels() throws Exception {
     UserModel userModel = VirtualData.virtual(UserModel.class)
         .build();
     assertEquals(true, userModel != null);
     System.out.println(userModel.toString());
-
-    CommodityModel commodityModel = VirtualData.virtual(CommodityModel.class)
-        .build();
-    assertEquals(true, commodityModel != null);
-    System.out.println(commodityModel.toString());
   }
 
+
+  @Test
+  public void testModelList() {
+    List<CommodityModel> userModels = VirtualData.virtual(CommodityModel.class).buildList();
+    assertEquals(true, !userModels.isEmpty());
+    for (CommodityModel model : userModels) {
+      System.out.println(model);
+    }
+  }
 
   @Test
   public void testModelsNest() throws Exception {
@@ -69,7 +52,7 @@ public class VirtualDataUnitTest {
 
     System.out.println(models.toString());
     assertEquals(true, !models.userModels.isEmpty());
-    assertEquals(true, models.commodityModel != null);
+    assertEquals(true, models.times > 0);
   }
 
   @Test
@@ -77,16 +60,11 @@ public class VirtualDataUnitTest {
 
     CommodityModel commodityModel = VirtualData
         .virtual(CommodityModel.class, new MyVirtualDataBuilder())
-        .setFieldName("commodity")
         .build();
     System.out.println(commodityModel);
-    assertEquals(true, !commodityModel.getTitle().equals(""));
+    assertEquals(true, !commodityModel.getUserMap().isEmpty());
+    assertEquals(true, commodityModel.getImageModel() != null);
 
-    CollectionUserModel model = VirtualData
-        .virtual(CollectionUserModel.class,new MyVirtualDataBuilder())
-        .build();
-    System.out.println(model);
-    assertEquals(true, model.commodityModel != null);
   }
 
 }

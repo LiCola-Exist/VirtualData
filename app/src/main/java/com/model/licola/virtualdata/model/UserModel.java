@@ -6,22 +6,31 @@ package com.model.licola.virtualdata.model;
 
 public class UserModel {
 
+  private String userId;
+  private String username;
+  private String phone;
+  private int age;
+  private float grade;
 
+  public UserModel() {
+  }
 
-  public String username;
-  public String phone;
-  public int age;
-  public float grade;
-  public String ase;
+  public UserModel(String userId, String username, String phone, int age, float grade) {
+    this.userId = userId;
+    this.username = username;
+    this.phone = phone;
+    this.age = age;
+    this.grade = grade;
+  }
 
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("UserModel{");
-    sb.append("username='").append(username).append('\'');
+    sb.append("userId='").append(userId).append('\'');
+    sb.append(", username='").append(username).append('\'');
     sb.append(", phone='").append(phone).append('\'');
     sb.append(", age=").append(age);
     sb.append(", grade=").append(grade);
-    sb.append(", ase='").append(ase).append('\'');
     sb.append('}');
     return sb.toString();
   }

@@ -15,9 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     TextView textView = findViewById(R.id.txt_content);
 
-//    CollectionUserModel models = VirtualData.virtual(CollectionUserModel.class)
-//        .addKeyInts("times", new Integer[]{10, 20, 30})
-//        .build();
+    //开启 instant-run会对代码结构产生影响 已经处理好
     UserModel userModel = VirtualData.virtual(UserModel.class).build();
     textView.setText(userModel.toString());
 

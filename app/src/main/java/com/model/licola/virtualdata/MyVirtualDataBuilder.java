@@ -1,6 +1,7 @@
 package com.model.licola.virtualdata;
 
 import com.model.licola.virtualdata.model.CommodityModel;
+import com.model.licola.virtualdata.model.ImageModel;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import virtual.RandomInterface;
@@ -28,21 +29,31 @@ public class MyVirtualDataBuilder extends VirtualDataDefaultBuilder {
       }
     });
 
-    map.put("commodityModel", new RandomInterface<Object>() {
-      @Override
-      public Object getRandomData() {
-        return new CommodityModel("嵌套在其他model的commodityModel", 1, 100);
-      }
-    });
     //Map结构因为包含两个类型 无法直接使用数据命名规则匹配 只有特殊字段名直接赋值
     map.put("userMap", new RandomInterface<Object>() {
       @Override
       public Object getRandomData() {
         Map<String, Integer> hashMap = new LinkedHashMap<>();
-        hashMap.put("key", 100);
+        hashMap.put("因为map结构有两个类型，无法统一处理，只能直接返回", 100);
         return hashMap;
       }
     });
+
+    //针对一些有特殊含义的Model，里面的字段有具体含义 不能根据类型模拟 只有针对特殊的字段名做数据处理
+    map.put("imageModel", new RandomInterface<Object>() {
+      @Override
+      public Object getRandomData() {
+        return new ImageModel("特殊Model的id有具体的含义，无需模拟", "特殊Model的hash有具体含义，无需模拟");
+      }
+    });
+    map.put("avatar", new RandomInterface<Object>() {
+      @Override
+      public Object getRandomData() {
+        return new ImageModel("用户的头像图片id", "用户的头像图片hash");
+      }
+    });
+
+
     //直接返回 入参
     return map;
   }
