@@ -3,9 +3,7 @@ package virtual;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ThreadLocalRandom;
 import virtual.RandomRule.RandomFloat;
-import virtual.RandomRule.RandomIntegerWithLength;
 import virtual.RandomRule.RandomInterface;
-import virtual.RandomRule.RandomLongWithLength;
 
 /**
  * Created by 李可乐 on 2017/4/18.
@@ -14,7 +12,7 @@ import virtual.RandomRule.RandomLongWithLength;
 public class RandomUtils {
 
   public static final void main(String[] arg) {
-    RandomInterface random = new RandomFloat(0,100);
+    RandomInterface random = new RandomFloat(0, 100);
     Object data = random.getRandomData();
     System.out.println("random:" + data);
   }
@@ -58,8 +56,12 @@ public class RandomUtils {
     return getLongLength(length).toString();
   }
 
-  public static String getPhoneNumberString() {
-    return "170" + getNumberString(8);
+  public static String getPhoneNumberString(int total, String prefix) {
+    if (prefix.length() >= total) {
+      //前缀超过总位数 直接返回
+      return prefix;
+    }
+    return prefix + getNumberString(total - prefix.length());
   }
 
   public static Integer getIntegerLength(int length) {
@@ -96,7 +98,6 @@ public class RandomUtils {
     }
 
     end = end > Long.MAX_VALUE / 10 ? Long.MAX_VALUE : end * scale;
-
 
     return getRandomInstance().nextLong(begin, end);
   }

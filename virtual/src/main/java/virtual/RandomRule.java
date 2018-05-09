@@ -26,7 +26,7 @@ public class RandomRule {
   /**
    * 随机数字字符串
    */
-  static class RandomStringNumber implements RandomInterface<String> {
+  public static class RandomStringNumber implements RandomInterface<String> {
 
     private int length;
 
@@ -40,7 +40,7 @@ public class RandomRule {
     }
   }
 
-  static class RandomStringAlphabet implements RandomInterface<String> {
+  public static class RandomStringAlphabet implements RandomInterface<String> {
 
     private int length;
 
@@ -54,7 +54,7 @@ public class RandomRule {
     }
   }
 
-  static class RandomStringSymbol implements RandomInterface<String> {
+  public static class RandomStringSymbol implements RandomInterface<String> {
 
     private int length;
 
@@ -69,7 +69,7 @@ public class RandomRule {
   }
 
 
-  static class RandomStringChinese implements RandomInterface<String> {
+  public static class RandomStringChinese implements RandomInterface<String> {
 
     private int length;
 
@@ -83,18 +83,26 @@ public class RandomRule {
     }
   }
 
-  static class RandomStringPhoneNumber implements RandomInterface<String> {
+  public static class RandomStringPhoneNumber implements RandomInterface<String> {
+
+    int total;
+    String prefix;
+
+    public RandomStringPhoneNumber(int total, String prefix) {
+      this.total = total;
+      this.prefix = prefix;
+    }
 
     @Override
     public String getRandomData() {
-      return getPhoneNumberString();
+      return getPhoneNumberString(total,prefix);
     }
   }
 
   /**
    * 在0~max范围内的随机整数
    */
-  static class RandomInteger implements RandomInterface<Integer> {
+  public static class RandomInteger implements RandomInterface<Integer> {
 
     private int max;
 
@@ -112,7 +120,7 @@ public class RandomRule {
    * 在规定数值位数的随机整数
    * 如 length=2，就是整数两位范围，即10~99
    */
-  static class RandomIntegerWithLength implements RandomInterface<Integer> {
+  public static class RandomIntegerWithLength implements RandomInterface<Integer> {
 
     private int length;
 
@@ -127,7 +135,7 @@ public class RandomRule {
   }
 
 
-  static class RandomLong implements RandomInterface<Long> {
+  public static class RandomLong implements RandomInterface<Long> {
 
     private int max;
 
@@ -145,7 +153,7 @@ public class RandomRule {
    * 在规定数值位数的随机长整数
    * 如 length=2，就是长整数两位范围，即10~99
    */
-  static class RandomLongWithLength implements RandomInterface<Long> {
+  public static class RandomLongWithLength implements RandomInterface<Long> {
 
     private int length;
 
@@ -159,7 +167,7 @@ public class RandomRule {
     }
   }
 
-  static class RandomFloat implements RandomInterface<Float> {
+  public static class RandomFloat implements RandomInterface<Float> {
 
     private double origin;
     private double bound;
@@ -176,7 +184,7 @@ public class RandomRule {
 
   }
 
-  static class RandomDouble implements RandomInterface<Double> {
+  public static class RandomDouble implements RandomInterface<Double> {
 
     private double origin;
     private double bound;
@@ -193,7 +201,7 @@ public class RandomRule {
 
   }
 
-  static class RandomBoolean implements RandomInterface<Boolean> {
+  public static class RandomBoolean implements RandomInterface<Boolean> {
 
     @Override
     public Boolean getRandomData() {

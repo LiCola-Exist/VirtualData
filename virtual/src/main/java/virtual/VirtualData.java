@@ -10,9 +10,13 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import virtual.Logger.AndroidLogger;
+import virtual.Logger.SystemOutLogger;
 import virtual.RandomRule.RandomInterface;
 
 /**
@@ -55,11 +59,25 @@ public class VirtualData<T> {
   private HashMap<String, String[]> keyStrings = new HashMap<>();
 
 
+  private Map<String, RandomInterface<Boolean>> ruleBoolean;
+  private Map<String, RandomInterface<Integer>> ruleInteger;
+  private Map<String, RandomInterface<Long>> ruleLong;
+  private Map<String, RandomInterface<Float>> ruleFloat;
+  private Map<String, RandomInterface<Double>> ruleDouble;
+  private Map<String, RandomInterface<String>> ruleString;
+  private Map<String, RandomInterface<Object>> ruleModel;
+
   //设置的容器大小
   private int sizeCollection = defaultListSize;
 
-  private static HashMap<Class, Constructor> cacheConstructor = new HashMap<>();
+  private static HashMap<Class, Constructor> cacheConstructor;
+  private static Logger logger;
 
+  static {
+    cacheConstructor = new HashMap<>();
+    logger = Logger.AndroidLogger.isAndroidLogAvailable() ? new AndroidLogger("Virtual")
+        : new SystemOutLogger();
+  }
 
   /**
    * 外观方法 封装使用
@@ -181,10 +199,14 @@ public class VirtualData<T> {
     }
   }
 
+
   private T getVirtualData(Class<?> tClass, String fieldName)
       throws IllegalAccessException, InstantiationException, InvocationTargetException {
 
-    Object model = checkDefaultRuleAndGet(tClass, fieldName, builder.getRandomRuleModel(),
+    ruleModel = ruleModel == null ? builder
+        .injectRuleModel(new LinkedHashMap<String, RandomInterface<Object>>()) : ruleModel;
+
+    Object model = checkDefaultRuleAndGet(tClass, fieldName, ruleModel,
         defaultModel);
     if (model != null) {
       return (T) model;
@@ -219,18 +241,8 @@ public class VirtualData<T> {
     for (Field itemField : fields) {
       Object objectData;
 
-      int modifiers = itemField.getModifiers();
-      if (Modifier.isStatic(modifiers)) {
-
-        if (Modifier.isFinal(modifiers)) {
-          //跳过 静态final字段 一般这种变量 已经固定 无需赋值
-          break;
-        }
-
-        if (Modifier.isTransient(modifiers)) {
-          //跳过 transient变量 典型如 static transient volatile com.android.tools.ir.runtime.IncrementalChange 字段
-          break;
-        }
+      if (checkFieldValid(itemField)) {
+        break;
       }
 
       String itemFieldName = itemField.getName();
@@ -248,8 +260,7 @@ public class VirtualData<T> {
         objectData = buildSet(parameterClass, itemFieldName, sizeCollection);
       } else {
         //其他类 包括基类类型和包装类型
-
-        objectData = checkDefaultRuleAndGet(fieldClass, itemFieldName, builder.getRandomRuleModel(),
+        objectData = checkDefaultRuleAndGet(fieldClass, itemFieldName, ruleModel,
             defaultModel);
         if (objectData == null) {
           objectData = getDataByClassAndName(itemFieldName, fieldClass);
@@ -266,10 +277,30 @@ public class VirtualData<T> {
     return (T) object;
   }
 
+
+  private boolean checkFieldValid(Field field) {
+    int modifiers = field.getModifiers();
+    if (Modifier.isStatic(modifiers)) {
+      if (Modifier.isFinal(modifiers)) {
+        //跳过 静态final字段 一般这种变量 已经固定 无需赋值
+        logger.log(Level.WARNING, "跳过设置 static final修饰字段 位于" + field.toString());
+        return true;
+      }
+
+      if (Modifier.isTransient(modifiers)) {
+        //跳过 transient变量 典型如 static transient volatile com.android.tools.ir.runtime.IncrementalChange 字段
+        logger.log(Level.WARNING, "跳过设置 static transient修饰字段 位于" + field.toString());
+        return true;
+      }
+    }
+    return false;
+  }
+
   private Class<?> getParameterClass(Field itemField) {
     ParameterizedType parameterType = (ParameterizedType) itemField.getGenericType();
     return (Class<?>) parameterType.getActualTypeArguments()[0];
   }
+
 
   /**
    * 根据字段名 和 类型 返回数据
@@ -277,36 +308,50 @@ public class VirtualData<T> {
   private Object getDataByClassAndName(String fieldName, Class<?> fieldClass) {
     if (fieldClass.isAssignableFrom(boolean.class) || fieldClass.isAssignableFrom(Boolean.class)) {
       //布尔类型 （基本类型和包装类）
-      Boolean data = checkDefaultRuleAndGet(fieldName, builder.getRandomRuleBoolean(),
+      ruleBoolean = ruleBoolean == null ? builder
+          .injectRuleBoolean(new LinkedHashMap<String, RandomInterface<Boolean>>())
+          : ruleBoolean;
+      Boolean data = checkDefaultRuleAndGet(fieldName, ruleBoolean,
           defaultBoolean);
       data = checkKeyMapAndGet(fieldName, keyBoolean, data);
       return data;
     } else if (fieldClass.isAssignableFrom(float.class) || fieldClass
         .isAssignableFrom(Float.class)) {
-      Float data = checkDefaultRuleAndGet(fieldName, builder.getRandomRuleFloat(), defaultFloat);
+      ruleFloat = ruleFloat == null ? builder
+          .injectRuleFloat(new LinkedHashMap<String, RandomInterface<Float>>()) : ruleFloat;
+      Float data = checkDefaultRuleAndGet(fieldName, ruleFloat, defaultFloat);
       data = checkKeyMapAndGet(fieldName, keyFloats, data);
       return data;
     } else if (fieldClass.isAssignableFrom(double.class) || fieldClass
         .isAssignableFrom(Double.class)) {
       //double浮点类型
-      Double data = checkDefaultRuleAndGet(fieldName, builder.getRandomRuleDouble(), defaultDouble);
+      ruleDouble = ruleDouble == null ? builder
+          .injectRuleDouble(new LinkedHashMap<String, RandomInterface<Double>>()) : ruleDouble;
+      Double data = checkDefaultRuleAndGet(fieldName, ruleDouble, defaultDouble);
       data = checkKeyMapAndGet(fieldName, keyDoubles, data);
       return data;
     } else if (fieldClass.isAssignableFrom(int.class) || fieldClass
         .isAssignableFrom(Integer.class)) {
       //整数类型（基本类型和包装类）
-      Integer data = checkDefaultRuleAndGet(fieldName, builder.getRandomRuleInteger(),
+      ruleInteger = ruleInteger == null ? builder
+          .injectRuleInteger(new LinkedHashMap<String, RandomInterface<Integer>>())
+          : ruleInteger;
+      Integer data = checkDefaultRuleAndGet(fieldName, ruleInteger,
           defaultInteger);
       data = checkKeyMapAndGet(fieldName, keyInts, data);
       return data;
     } else if (fieldClass.isAssignableFrom(long.class) || fieldClass.isAssignableFrom(Long.class)) {
       //长整数整型 （基本类型和包装类）
-      Long data = checkDefaultRuleAndGet(fieldName, builder.getRandomRuleLong(), defaultLong);
+      ruleLong = ruleLong == null ? builder
+          .injectRuleLong(new LinkedHashMap<String, RandomInterface<Long>>()) : ruleLong;
+      Long data = checkDefaultRuleAndGet(fieldName, ruleLong, defaultLong);
       data = checkKeyMapAndGet(fieldName, keyLongs, data);
       return data;
     } else if (fieldClass.isAssignableFrom(String.class)) {
       //String
-      String data = checkDefaultRuleAndGet(fieldName, builder.getRandomRuleString(), defaultString);
+      ruleString = ruleString == null ? builder
+          .injectRuleString(new LinkedHashMap<String, RandomInterface<String>>()) : ruleString;
+      String data = checkDefaultRuleAndGet(fieldName, ruleString, defaultString);
       data = checkKeyMapAndGet(fieldName, keyStrings, data);
       return data;
     } else {
@@ -339,24 +384,29 @@ public class VirtualData<T> {
     return defaultModel;
   }
 
+
   /**
    * 检查默认规则的返回值
    * 如果匹配或者部分匹配 返回特定规则下的随机值
    * 否则 返回默认值
    */
-  private <K> K checkDefaultRuleAndGet(String key, Map<String, RandomInterface<K>> hashMap,
+  private <K> K checkDefaultRuleAndGet(String key, Map<String, RandomInterface<K>> map,
       K defaultValue) {
+    if (Util.isEmpty(map)) {
+      return defaultValue;
+    }
+
     String offsetKey = key.toLowerCase();
 
     //优化查找过程 如果全匹配
-    RandomInterface<K> value = hashMap.get(offsetKey);
+    RandomInterface<K> value = map.get(offsetKey);
 
     //没有全匹配 使用部分匹配查找 如果匹配多个规则 使用最后匹配
     if (value == null) {
-      for (String mapKey : hashMap.keySet()) {
+      for (String mapKey : map.keySet()) {
         if (offsetKey.contains(mapKey)) {
           //参数名 匹配规则
-          value = hashMap.get(mapKey);
+          value = map.get(mapKey);
         }
       }
     }

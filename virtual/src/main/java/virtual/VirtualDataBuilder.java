@@ -1,6 +1,6 @@
 package virtual;
 
-import java.util.LinkedHashMap;
+import java.util.Map;
 import virtual.RandomRule.RandomInterface;
 
 /**
@@ -8,18 +8,18 @@ import virtual.RandomRule.RandomInterface;
  */
 public interface VirtualDataBuilder {
 
-  LinkedHashMap<String, RandomInterface<Boolean>> getRandomRuleBoolean();
+  Map<String, RandomInterface<Boolean>> injectRuleBoolean(Map<String, RandomInterface<Boolean>> map);
 
-  LinkedHashMap<String, RandomInterface<Integer>> getRandomRuleInteger();
+  Map<String, RandomInterface<Integer>> injectRuleInteger(Map<String, RandomInterface<Integer>> map);
 
-  LinkedHashMap<String, RandomInterface<Long>> getRandomRuleLong();
+  Map<String, RandomInterface<Long>> injectRuleLong(Map<String, RandomInterface<Long>> map);
 
-  LinkedHashMap<String, RandomInterface<Float>> getRandomRuleFloat();
+  Map<String, RandomInterface<Float>> injectRuleFloat(Map<String, RandomInterface<Float>> map);
 
-  LinkedHashMap<String, RandomInterface<Double>> getRandomRuleDouble();
+  Map<String, RandomInterface<Double>> injectRuleDouble(Map<String, RandomInterface<Double>> map);
 
-  LinkedHashMap<String, RandomInterface<String>> getRandomRuleString();
+  Map<String, RandomInterface<String>> injectRuleString(Map<String, RandomInterface<String>> map);
 
-  LinkedHashMap<String, RandomInterface<Object>> getRandomRuleModel();
+  Map<String, RandomInterface<Object>> injectRuleModel(Map<String, RandomInterface<Object>> map);
 
 }

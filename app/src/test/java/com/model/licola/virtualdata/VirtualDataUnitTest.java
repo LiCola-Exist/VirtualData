@@ -64,12 +64,28 @@ public class VirtualDataUnitTest {
     CollectionUserModel models = VirtualData.virtual(CollectionUserModel.class)
         .setSizeCollection(2)
         .addKeyInts("times", new Integer[]{10, 20, 30})
-//        .addKeyInts("level",new int[]{1,2,3})
         .build();
 
     System.out.println(models.toString());
     assertEquals(true, !models.userModels.isEmpty());
     assertEquals(true, models.commodityModel != null);
+  }
+
+  @Test
+  public void testMyBuilder() {
+
+    CommodityModel commodityModel = VirtualData
+        .virtual(CommodityModel.class, new MyVirtualDataBuilder())
+        .setFieldName("commodity")
+        .build();
+    System.out.println(commodityModel);
+    assertEquals(true, !commodityModel.getTitle().equals(""));
+
+    CollectionUserModel model = VirtualData
+        .virtual(CollectionUserModel.class, new MyVirtualDataBuilder())
+        .build();
+    System.out.println(model);
+    assertEquals(true, model.commodityModel != null);
   }
 
 }
