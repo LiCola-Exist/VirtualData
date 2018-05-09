@@ -8,7 +8,6 @@ import virtual.RandomRule.RandomDouble;
 import virtual.RandomRule.RandomFloat;
 import virtual.RandomRule.RandomInteger;
 import virtual.RandomRule.RandomIntegerWithLength;
-import virtual.RandomRule.RandomInterface;
 import virtual.RandomRule.RandomLong;
 import virtual.RandomRule.RandomLongWithLength;
 import virtual.RandomRule.RandomStringAlphabet;
@@ -88,7 +87,7 @@ public class VirtualDataDefaultBuilder implements VirtualDataBuilder {
     map.put("content", new RandomStringChinese(24));
     map.put("desc", new RandomStringChinese(20));
     map.put("value", new RandomStringSymbol(8));
-    map.put("tags", new RandomStringNumber(4));
+    map.put("tag", new RandomStringNumber(4));
     map.put("time", new RandomInterface<String>() {
       @Override
       public String getRandomData() {

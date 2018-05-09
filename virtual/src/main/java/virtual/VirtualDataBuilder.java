@@ -1,7 +1,6 @@
 package virtual;
 
 import java.util.Map;
-import virtual.RandomRule.RandomInterface;
 
 /**
  * Created by LiCola on 2018/5/4.

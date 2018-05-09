@@ -1,8 +1,9 @@
 package com.model.licola.virtualdata;
 
 import com.model.licola.virtualdata.model.CommodityModel;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import virtual.RandomRule.RandomInterface;
+import virtual.RandomInterface;
 import virtual.RandomRule.RandomStringPhoneNumber;
 import virtual.VirtualDataDefaultBuilder;
 
@@ -26,10 +27,20 @@ public class MyVirtualDataBuilder extends VirtualDataDefaultBuilder {
         return new CommodityModel("手动设置的title", 100, 1);
       }
     });
+
     map.put("commodityModel", new RandomInterface<Object>() {
       @Override
       public Object getRandomData() {
         return new CommodityModel("嵌套在其他model的commodityModel", 1, 100);
+      }
+    });
+    //Map结构因为包含两个类型 无法直接使用数据命名规则匹配 只有特殊字段名直接赋值
+    map.put("userMap", new RandomInterface<Object>() {
+      @Override
+      public Object getRandomData() {
+        Map<String, Integer> hashMap = new LinkedHashMap<>();
+        hashMap.put("key", 100);
+        return hashMap;
       }
     });
     //直接返回 入参

@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import virtual.Logger.AndroidLogger;
 import virtual.Logger.SystemOutLogger;
-import virtual.RandomRule.RandomInterface;
 
 /**
  * Created by 李可乐 on 2017/4/17.
@@ -59,6 +58,7 @@ public class VirtualData<T> {
   private HashMap<String, String[]> keyStrings = new HashMap<>();
 
 
+  //builder配置 对应类型的数据规则
   private Map<String, RandomInterface<Boolean>> ruleBoolean;
   private Map<String, RandomInterface<Integer>> ruleInteger;
   private Map<String, RandomInterface<Long>> ruleLong;
@@ -90,7 +90,7 @@ public class VirtualData<T> {
     return new VirtualData<>(classTarget, builder);
   }
 
-  public VirtualData(Class<T> classTarget, VirtualDataBuilder builder) {
+  private VirtualData(Class<T> classTarget, VirtualDataBuilder builder) {
     this.classTarget = classTarget;
     this.builder = builder;
   }
@@ -151,12 +151,17 @@ public class VirtualData<T> {
   }
 
 
+  /**
+   * 构造泛型List集合对象
+   *
+   * @return ArrayList数据
+   */
   public List<T> buildList() {
     return buildList(classTarget, fieldName, sizeCollection);
   }
 
   /**
-   * 构造泛型的List对象
+   * 构造泛型的List集合对象
    *
    * @return 虚拟数据ArrayList实例
    */
@@ -172,14 +177,17 @@ public class VirtualData<T> {
     }
   }
 
+  /**
+   * 构造泛型Set集合对象
+   */
   public Set<T> buildSet() {
     return buildSet(classTarget, fieldName, sizeCollection);
   }
 
   /**
-   * 构造泛型的Set对象
+   * 构造泛型的Set集合对象
    *
-   * @return @return 虚拟HashSet数据实例
+   * @return 虚拟HashSet数据实例
    */
   private Set<T> buildSet(Class<?> tClass, String fieldName, int size) {
     Set<T> set = new HashSet<>(getMapCapacity(size));
@@ -242,7 +250,7 @@ public class VirtualData<T> {
       Object objectData;
 
       if (checkFieldValid(itemField)) {
-        break;
+        continue;
       }
 
       String itemFieldName = itemField.getName();
@@ -283,13 +291,13 @@ public class VirtualData<T> {
     if (Modifier.isStatic(modifiers)) {
       if (Modifier.isFinal(modifiers)) {
         //跳过 静态final字段 一般这种变量 已经固定 无需赋值
-        logger.log(Level.WARNING, "跳过设置 static final修饰字段 位于" + field.toString());
+        logger.log(Level.WARNING, "跳过static final修饰字段:" + field.toString());
         return true;
       }
 
       if (Modifier.isTransient(modifiers)) {
         //跳过 transient变量 典型如 static transient volatile com.android.tools.ir.runtime.IncrementalChange 字段
-        logger.log(Level.WARNING, "跳过设置 static transient修饰字段 位于" + field.toString());
+        logger.log(Level.WARNING, "跳过static transient修饰字段:" + field.toString());
         return true;
       }
     }
@@ -376,9 +384,23 @@ public class VirtualData<T> {
 
     if (value != null) {
       Object data = value.getRandomData();
-      if (data.getClass() == tClass) {
-        return data;
+
+      if (tClass.isInterface()) {
+        for (Class<?> aClass : data.getClass().getInterfaces()) {
+          if (aClass == tClass) {
+            return data;
+          }
+        }
+      } else {
+        Class<?> aClass = data.getClass();
+        while (aClass != Object.class) {
+          if (aClass == tClass) {
+            return data;
+          }
+          aClass = aClass.getSuperclass();
+        }
       }
+
     }
 
     return defaultModel;

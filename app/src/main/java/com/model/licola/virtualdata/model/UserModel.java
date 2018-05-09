@@ -6,6 +6,8 @@ package com.model.licola.virtualdata.model;
 
 public class UserModel {
 
+
+
   public String username;
   public String phone;
   public int age;

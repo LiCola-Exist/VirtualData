@@ -1,23 +1,30 @@
 package com.model.licola.virtualdata.model;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Created by LiCola on 2018/3/15.
  * 被模拟的数据
  * 定义有基本类型，String，自定义类，List自定义类
  * 类似常用的JSON解析的VO（ViewObject）表现层对象
- *
  */
 
 public class CollectionUserModel {
+
+  /**
+   * 不可变的字段 不会被修改
+   */
+  public static final String Action = "action";
+
 
   public int times;
   public String userGitUrl;
   public String des;
   public CommodityModel commodityModel;
   public List<UserModel> userModels;
+  public Map<String,Integer> userMap;
 
   @Override
   public String toString() {
@@ -27,6 +34,7 @@ public class CollectionUserModel {
     sb.append(", des='").append(des).append('\'');
     sb.append(", commodityModel=").append(commodityModel);
     sb.append(", userModels=").append(userModels);
+    sb.append(", userMap=").append(userMap);
     sb.append('}');
     return sb.toString();
   }

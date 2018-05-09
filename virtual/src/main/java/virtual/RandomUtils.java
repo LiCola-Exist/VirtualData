@@ -2,8 +2,6 @@ package virtual;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ThreadLocalRandom;
-import virtual.RandomRule.RandomFloat;
-import virtual.RandomRule.RandomInterface;
 
 /**
  * Created by 李可乐 on 2017/4/18.
@@ -11,11 +9,6 @@ import virtual.RandomRule.RandomInterface;
 
 public class RandomUtils {
 
-  public static final void main(String[] arg) {
-    RandomInterface random = new RandomFloat(0, 100);
-    Object data = random.getRandomData();
-    System.out.println("random:" + data);
-  }
 
   private static ThreadLocalRandom getRandomInstance() {
     return ThreadLocalRandom.current();

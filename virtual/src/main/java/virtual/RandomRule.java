@@ -7,24 +7,18 @@ import static virtual.RandomUtils.getNumberString;
 import static virtual.RandomUtils.getPhoneNumberString;
 import static virtual.RandomUtils.getSymbolString;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * Created by 李可乐 on 2017/4/20.
- * 规定的随机数据生成规则
+ * 通用的数据生成规则
+ * 如定长(固定长度)字符串、定长中文字符串、定长整数、手机号。
  */
 
 public class RandomRule {
 
   /**
-   * 泛型通用接口
-   */
-  public interface RandomInterface<T> {
-
-    T getRandomData();
-  }
-
-
-  /**
-   * 随机数字字符串
+   * 定长随机数字字符串
    */
   public static class RandomStringNumber implements RandomInterface<String> {
 
@@ -40,6 +34,9 @@ public class RandomRule {
     }
   }
 
+  /**
+   * 定长随机字母字符串
+   */
   public static class RandomStringAlphabet implements RandomInterface<String> {
 
     private int length;
@@ -54,6 +51,9 @@ public class RandomRule {
     }
   }
 
+  /**
+   * 定长符号/字母/数字字符串
+   */
   public static class RandomStringSymbol implements RandomInterface<String> {
 
     private int length;
@@ -69,6 +69,9 @@ public class RandomRule {
   }
 
 
+  /**
+   * 定长简体中文字符串
+   */
   public static class RandomStringChinese implements RandomInterface<String> {
 
     private int length;
@@ -83,6 +86,12 @@ public class RandomRule {
     }
   }
 
+  /**
+   * 手机号
+   * 固定总长、前缀得到随机手机号
+   * 如：total：11，prefix：170，得到170前缀固定的11位手机号
+   * 如：total：13，prefix：0571-，得到0571-前缀固定的13位座机号
+   */
   public static class RandomStringPhoneNumber implements RandomInterface<String> {
 
     int total;
@@ -95,12 +104,13 @@ public class RandomRule {
 
     @Override
     public String getRandomData() {
-      return getPhoneNumberString(total,prefix);
+      return getPhoneNumberString(total, prefix);
     }
   }
 
   /**
    * 在0~max范围内的随机整数
+   * 注：max包含在生成数的范围内
    */
   public static class RandomInteger implements RandomInterface<Integer> {
 
@@ -117,8 +127,8 @@ public class RandomRule {
   }
 
   /**
-   * 在规定数值位数的随机整数
-   * 如 length=2，就是整数两位范围，即10~99
+   * 定长随机整数，即固定整数位范围的数值
+   * 如：length=2，就是整数两位范围，即10~99
    */
   public static class RandomIntegerWithLength implements RandomInterface<Integer> {
 
@@ -134,7 +144,10 @@ public class RandomRule {
     }
   }
 
-
+  /**
+   * 在0~max范围内的随机长整数
+   * 注：max包含在生成数的范围内
+   */
   public static class RandomLong implements RandomInterface<Long> {
 
     private int max;
@@ -150,7 +163,7 @@ public class RandomRule {
   }
 
   /**
-   * 在规定数值位数的随机长整数
+   * 定长随机长整数，即固定长整数位范围的数值
    * 如 length=2，就是长整数两位范围，即10~99
    */
   public static class RandomLongWithLength implements RandomInterface<Long> {
@@ -167,6 +180,10 @@ public class RandomRule {
     }
   }
 
+  /**
+   * 范围内的浮点数
+   * 具体参见{@link ThreadLocalRandom#nextDouble(double, double)}
+   */
   public static class RandomFloat implements RandomInterface<Float> {
 
     private double origin;
@@ -184,6 +201,10 @@ public class RandomRule {
 
   }
 
+  /**
+   * 范围内的浮点数
+   * 具体参见{@link ThreadLocalRandom#nextDouble(double, double)}
+   */
   public static class RandomDouble implements RandomInterface<Double> {
 
     private double origin;
@@ -201,6 +222,9 @@ public class RandomRule {
 
   }
 
+  /**
+   * 随机布尔值
+   */
   public static class RandomBoolean implements RandomInterface<Boolean> {
 
     @Override

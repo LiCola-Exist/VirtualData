@@ -2,6 +2,7 @@ package com.model.licola.virtualdata;
 
 import static org.junit.Assert.assertEquals;
 
+import android.util.Log;
 import com.model.licola.virtualdata.model.CollectionUserModel;
 import com.model.licola.virtualdata.model.CommodityModel;
 import com.model.licola.virtualdata.model.UserModel;
@@ -82,7 +83,7 @@ public class VirtualDataUnitTest {
     assertEquals(true, !commodityModel.getTitle().equals(""));
 
     CollectionUserModel model = VirtualData
-        .virtual(CollectionUserModel.class, new MyVirtualDataBuilder())
+        .virtual(CollectionUserModel.class,new MyVirtualDataBuilder())
         .build();
     System.out.println(model);
     assertEquals(true, model.commodityModel != null);
