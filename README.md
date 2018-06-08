@@ -8,7 +8,7 @@
 # 引用
 
 ```java
-   implementation 'com.licola:virtual:1.2.0'
+   implementation 'com.licola:virtual:1.2.1'
 ```
 
 # 使用
@@ -24,11 +24,15 @@ List<CommodityModel> userModels = VirtualData.virtual(CommodityModel.class)
         .virtual(CommodityModel.class, new MyVirtualDataBuilder())
         .build();
 
-
 ```
 基本就是一行代码解决问题。
 
-更多使用参考VirtualDataUnitTest测试类的代码
+更多使用参考[VirtualDataUnitTest](https://github.com/LiCola/VirtualData/blob/master/app/src/test/java/com/model/licola/virtualdata/VirtualDataUnitTest.java)测试类的代码
+
+并提供继承`VirtualDataDefaultBuilder`重写`injectRuleXX`注入新的类型名称数据规则。
+
+# 更新
+- 1.2.1：添加Queue类的支持`buildQueue`，修复错误。
 
 # 项目起源
 在开发中我们需要观察数据Model是否正常的显示在UI中，在单元测试的负责显示的View层需要检测的是页面是否正常显示。它们本质其实就是验证ViewObject（VO）表现层对象的正常表现。
@@ -59,5 +63,5 @@ List<CommodityModel> userModels = VirtualData.virtual(CommodityModel.class)
 
 # 缺点
 目前反射的是Model的空参构造方法。所以对Model的构造方法有要求。使用时请注意。
-目前只是根据我项目数据规律生成的规则，如果不能满足你的开发需求，需要更多的外部规则配置。
+
 

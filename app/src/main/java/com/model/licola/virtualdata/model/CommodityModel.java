@@ -11,6 +11,7 @@ public class CommodityModel {
   private String title;
   private int price;
   private int level;
+  private String phoneNumber;
   private Map<String, Integer> userMap;
   private ImageModel imageModel;
 
@@ -45,6 +46,7 @@ public class CommodityModel {
     sb.append("title='").append(title).append('\'');
     sb.append(", price=").append(price);
     sb.append(", level=").append(level);
+    sb.append(", phoneNumber='").append(phoneNumber).append('\'');
     sb.append(", userMap=").append(userMap);
     sb.append(", imageModel=").append(imageModel);
     sb.append('}');

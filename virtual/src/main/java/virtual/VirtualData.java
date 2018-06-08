@@ -7,16 +7,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
-import java.util.logging.Level;
-import virtual.Logger.AndroidLogger;
-import virtual.Logger.SystemOutLogger;
 
 /**
  * Created by 李可乐 on 2017/4/17.
@@ -31,6 +30,8 @@ import virtual.Logger.SystemOutLogger;
  */
 
 public class VirtualData<T> {
+
+  private static final String TAG = "Virtual";
 
   //默认配置
   private static final int defaultListSize = 10;
@@ -57,7 +58,6 @@ public class VirtualData<T> {
   private HashMap<String, Double[]> keyDoubles = new HashMap<>();
   private HashMap<String, String[]> keyStrings = new HashMap<>();
 
-
   //builder配置 对应类型的数据规则
   private Map<String, RandomInterface<Boolean>> ruleBoolean;
   private Map<String, RandomInterface<Integer>> ruleInteger;
@@ -71,12 +71,9 @@ public class VirtualData<T> {
   private int sizeCollection = defaultListSize;
 
   private static HashMap<Class, Constructor> cacheConstructor;
-  private static Logger logger;
 
   static {
     cacheConstructor = new HashMap<>();
-    logger = Logger.AndroidLogger.isAndroidLogAvailable() ? new AndroidLogger("Virtual")
-        : new SystemOutLogger();
   }
 
   /**
@@ -201,6 +198,22 @@ public class VirtualData<T> {
     }
   }
 
+  public Queue<T> buildQueue() {
+    return buildQueue(classTarget, fieldName, sizeCollection);
+  }
+
+  private Queue<T> buildQueue(Class<?> tClass, String fieldName, int size) {
+    Queue<T> queue = new ArrayDeque<>();
+    try {
+      for (int i = 0; i < size; i++) {
+        queue.add(getVirtualData(tClass, fieldName));
+      }
+      return queue;
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private static void checkSizeArg(int sizeList) {
     if (sizeList <= 0) {
       throw new IllegalArgumentException("size 不能小于等于0");
@@ -246,10 +259,10 @@ public class VirtualData<T> {
 
     Field[] fields = tClass.getDeclaredFields();//获取该类声明的全部域
 
+    Object dataFieldValue;
     for (Field itemField : fields) {
-      Object objectData;
 
-      if (checkFieldValid(itemField)) {
+      if (checkFieldInvalid(itemField)) {
         continue;
       }
 
@@ -259,45 +272,62 @@ public class VirtualData<T> {
       itemField.setAccessible(true);//访问private必须设置
 
       if (fieldClass.isAssignableFrom(List.class)) {
-        //List类
+        //List接口
         Class<?> parameterClass = getParameterClass(itemField);
-        objectData = buildList(parameterClass, itemFieldName, sizeCollection);
+        dataFieldValue = buildList(parameterClass, itemFieldName, sizeCollection);
       } else if (fieldClass.isAssignableFrom(Set.class)) {
-        //Set类
+        //Set接口
         Class<?> parameterClass = getParameterClass(itemField);
-        objectData = buildSet(parameterClass, itemFieldName, sizeCollection);
+        dataFieldValue = buildSet(parameterClass, itemFieldName, sizeCollection);
+      } else if (fieldClass.isAssignableFrom(Queue.class)) {
+        //Queue接口
+        Class<?> parameterClass = getParameterClass(itemField);
+        dataFieldValue = buildQueue(parameterClass, itemFieldName, sizeCollection);
       } else {
         //其他类 包括基类类型和包装类型
-        objectData = checkDefaultRuleAndGet(fieldClass, itemFieldName, ruleModel,
+
+        //1：尝试 自定义类数据规则
+        dataFieldValue = checkDefaultRuleAndGet(fieldClass, itemFieldName, ruleModel,
             defaultModel);
-        if (objectData == null) {
-          objectData = getDataByClassAndName(itemFieldName, fieldClass);
+
+        //2：尝试 基础类以及它的包装类和String数据规则
+        if (dataFieldValue == null) {
+          dataFieldValue = getValueByClassAndName(itemFieldName, fieldClass);
         }
 
-        if (objectData == null) {
-          objectData = getVirtualData(fieldClass, itemFieldName);
+        //3：最后 递归处理自定义类 重复步骤
+        if (dataFieldValue == null) {
+
+          if (fieldClass.isAssignableFrom(Map.class)){
+            dataFieldValue=defaultModel;
+          }else {
+            dataFieldValue = getVirtualData(fieldClass, itemFieldName);
+          }
         }
       }
       //设置对象的各字段的变量值
-      itemField.set(object, objectData);
+      itemField.set(object, dataFieldValue);
     }
 
     return (T) object;
   }
 
 
-  private boolean checkFieldValid(Field field) {
+  /**
+   * 检查无效设置的字段field
+   * @param field
+   * @return
+   */
+  private boolean checkFieldInvalid(Field field) {
     int modifiers = field.getModifiers();
     if (Modifier.isStatic(modifiers)) {
       if (Modifier.isFinal(modifiers)) {
         //跳过 静态final字段 一般这种变量 已经固定 无需赋值
-        logger.log(Level.WARNING, "跳过static final修饰字段:" + field.toString());
         return true;
       }
 
       if (Modifier.isTransient(modifiers)) {
         //跳过 transient变量 典型如 static transient volatile com.android.tools.ir.runtime.IncrementalChange 字段
-        logger.log(Level.WARNING, "跳过static transient修饰字段:" + field.toString());
         return true;
       }
     }
@@ -313,7 +343,7 @@ public class VirtualData<T> {
   /**
    * 根据字段名 和 类型 返回数据
    */
-  private Object getDataByClassAndName(String fieldName, Class<?> fieldClass) {
+  private Object getValueByClassAndName(String fieldName, Class<?> fieldClass) {
     if (fieldClass.isAssignableFrom(boolean.class) || fieldClass.isAssignableFrom(Boolean.class)) {
       //布尔类型 （基本类型和包装类）
       ruleBoolean = ruleBoolean == null ? builder

@@ -2,10 +2,13 @@ package com.model.licola.virtualdata;
 
 import static org.junit.Assert.assertEquals;
 
+import com.licola.llogger.LLogger;
 import com.model.licola.virtualdata.model.CollectionUserModel;
 import com.model.licola.virtualdata.model.CommodityModel;
 import com.model.licola.virtualdata.model.UserModel;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import org.junit.Test;
 import virtual.RandomUtils;
 import virtual.VirtualData;
@@ -20,50 +23,73 @@ public class VirtualDataUnitTest {
   @Test
   public void testRandomRule() {
     String numberString = RandomUtils.getNumberString(2);
-    System.out.println(numberString);
-    assertEquals(false, numberString.equals(""));
+    assertEquals(false, numberString.isEmpty());
+    LLogger.a(numberString);
+
+    String chineseSimple = RandomUtils.getChineseSimple(4);
+    assertEquals(false,chineseSimple.isEmpty());
+    LLogger.a(chineseSimple);
   }
 
   @Test
-  public void testModels() throws Exception {
-    UserModel userModel = VirtualData.virtual(UserModel.class)
+  public void testModels()  {
+    UserModel model = VirtualData.virtual(UserModel.class)
         .build();
-    assertEquals(true, userModel != null);
-    System.out.println(userModel.toString());
+    assertEquals(true, model != null);
+    LLogger.a(model);
   }
 
 
   @Test
   public void testModelList() {
-    List<CommodityModel> userModels = VirtualData.virtual(CommodityModel.class).buildList();
+    List<UserModel> userModels = VirtualData.virtual(UserModel.class).buildList();
     assertEquals(true, !userModels.isEmpty());
-    for (CommodityModel model : userModels) {
-      System.out.println(model);
+    for (UserModel model : userModels) {
+      LLogger.a(model);
+    }
+  }
+
+  @Test
+  public void testModelSet() {
+    Set<UserModel> userModels = VirtualData.virtual(UserModel.class).buildSet();
+    assertEquals(true, !userModels.isEmpty());
+    for (UserModel model : userModels) {
+      LLogger.a(model);
+    }
+  }
+
+  @Test
+  public void testModelQueue() {
+    Queue<UserModel> userModels = VirtualData.virtual(UserModel.class).buildQueue();
+    assertEquals(true, !userModels.isEmpty());
+    for (UserModel model : userModels) {
+      LLogger.a(model);
     }
   }
 
   @Test
   public void testModelsNest() throws Exception {
 
-    CollectionUserModel models = VirtualData.virtual(CollectionUserModel.class)
+    CollectionUserModel model = VirtualData.virtual(CollectionUserModel.class)
         .setSizeCollection(2)
         .addKeyInts("times", new Integer[]{10, 20, 30})
         .build();
+    assertEquals(true, !model.userModels.isEmpty());
+    assertEquals(true, model.times > 0);
 
-    System.out.println(models.toString());
-    assertEquals(true, !models.userModels.isEmpty());
-    assertEquals(true, models.times > 0);
+    LLogger.a(model);
   }
 
   @Test
   public void testMyBuilder() {
 
-    CommodityModel commodityModel = VirtualData
+    CommodityModel model = VirtualData
         .virtual(CommodityModel.class, new MyVirtualDataBuilder())
         .build();
-    System.out.println(commodityModel);
-    assertEquals(true, !commodityModel.getUserMap().isEmpty());
-    assertEquals(true, commodityModel.getImageModel() != null);
+    assertEquals(true, !model.getUserMap().isEmpty());
+    assertEquals(true, model.getImageModel() != null);
+
+    LLogger.a(model);
 
   }
 
