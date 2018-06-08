@@ -29,7 +29,9 @@ List<CommodityModel> userModels = VirtualData.virtual(CommodityModel.class)
 
 更多使用参考[VirtualDataUnitTest](https://github.com/LiCola/VirtualData/blob/master/app/src/test/java/com/model/licola/virtualdata/VirtualDataUnitTest.java)测试类的代码
 
-并提供继承`VirtualDataDefaultBuilder`重写`injectRuleXX`注入新的类型名称数据规则。
+如果需要修改数据规则，继承`VirtualDataDefaultBuilder`重写`injectRuleXX`注入新的类型名称数据规则。
+参考[MyVirtualDataBuilder](https://github.com/LiCola/VirtualData/blob/master/app/src/main/java/com/model/licola/virtualdata/MyVirtualDataBuilder.java)定新的数据规则
+
 
 # 更新
 - 1.2.1：添加Queue类的支持`buildQueue`，修复错误。
