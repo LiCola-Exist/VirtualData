@@ -1,11 +1,11 @@
 package virtual;
 
 
-import static virtual.RandomUtils.getAlphabetString;
-import static virtual.RandomUtils.getChineseSimple;
-import static virtual.RandomUtils.getNumberString;
-import static virtual.RandomUtils.getPhoneNumberString;
-import static virtual.RandomUtils.getSymbolString;
+import static virtual.VirtualUtils.getAlphabetString;
+import static virtual.VirtualUtils.getChineseSimple;
+import static virtual.VirtualUtils.getNumberString;
+import static virtual.VirtualUtils.getPhoneNumberString;
+import static virtual.VirtualUtils.getSymbolString;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -15,21 +15,21 @@ import java.util.concurrent.ThreadLocalRandom;
  * 如定长(固定长度)字符串、定长中文字符串、定长整数、手机号。
  */
 
-public class RandomRule {
+public class VirtualRules {
 
   /**
    * 定长随机数字字符串
    */
-  public static class RandomStringNumber implements RandomInterface<String> {
+  public static class VirtualStringNumber implements VirtualApi<String> {
 
     private int length;
 
-    RandomStringNumber(int length) {
+    VirtualStringNumber(int length) {
       this.length = length;
     }
 
     @Override
-    public String getRandomData() {
+    public String onVirtual() {
       return getNumberString(length);
     }
   }
@@ -37,16 +37,16 @@ public class RandomRule {
   /**
    * 定长随机字母字符串
    */
-  public static class RandomStringAlphabet implements RandomInterface<String> {
+  public static class VirtualStringAlphabet implements VirtualApi<String> {
 
     private int length;
 
-    RandomStringAlphabet(int length) {
+    VirtualStringAlphabet(int length) {
       this.length = length;
     }
 
     @Override
-    public String getRandomData() {
+    public String onVirtual() {
       return getAlphabetString(length);
     }
   }
@@ -54,16 +54,16 @@ public class RandomRule {
   /**
    * 定长符号/字母/数字字符串
    */
-  public static class RandomStringSymbol implements RandomInterface<String> {
+  public static class VirtualStringSymbol implements VirtualApi<String> {
 
     private int length;
 
-    RandomStringSymbol(int length) {
+    VirtualStringSymbol(int length) {
       this.length = length;
     }
 
     @Override
-    public String getRandomData() {
+    public String onVirtual() {
       return getSymbolString(length);
     }
   }
@@ -72,16 +72,16 @@ public class RandomRule {
   /**
    * 定长简体中文字符串
    */
-  public static class RandomStringChinese implements RandomInterface<String> {
+  public static class VirtualStringChinese implements VirtualApi<String> {
 
     private int length;
 
-    RandomStringChinese(int length) {
+    VirtualStringChinese(int length) {
       this.length = length;
     }
 
     @Override
-    public String getRandomData() {
+    public String onVirtual() {
       return getChineseSimple(length);
     }
   }
@@ -92,18 +92,18 @@ public class RandomRule {
    * 如：total：11，prefix：170，得到170前缀固定的11位手机号
    * 如：total：13，prefix：0571-，得到0571-前缀固定的13位座机号
    */
-  public static class RandomStringPhoneNumber implements RandomInterface<String> {
+  public static class VirtualStringPhoneNumber implements VirtualApi<String> {
 
     int total;
     String prefix;
 
-    public RandomStringPhoneNumber(int total, String prefix) {
+    public VirtualStringPhoneNumber(int total, String prefix) {
       this.total = total;
       this.prefix = prefix;
     }
 
     @Override
-    public String getRandomData() {
+    public String onVirtual() {
       return getPhoneNumberString(total, prefix);
     }
   }
@@ -112,17 +112,17 @@ public class RandomRule {
    * 在0~max范围内的随机整数
    * 注：max包含在生成数的范围内
    */
-  public static class RandomInteger implements RandomInterface<Integer> {
+  public static class VirtualInteger implements VirtualApi<Integer> {
 
     private int max;
 
-    public RandomInteger(int max) {
+    public VirtualInteger(int max) {
       this.max = max;
     }
 
     @Override
-    public Integer getRandomData() {
-      return RandomUtils.getInt(max + 1);
+    public Integer onVirtual() {
+      return VirtualUtils.getInt(max + 1);
     }
   }
 
@@ -130,17 +130,17 @@ public class RandomRule {
    * 定长随机整数，即固定整数位范围的数值
    * 如：length=2，就是整数两位范围，即10~99
    */
-  public static class RandomIntegerWithLength implements RandomInterface<Integer> {
+  public static class VirtualIntegerWithLength implements VirtualApi<Integer> {
 
     private int length;
 
-    RandomIntegerWithLength(int length) {
+    VirtualIntegerWithLength(int length) {
       this.length = length;
     }
 
     @Override
-    public Integer getRandomData() {
-      return RandomUtils.getIntegerLength(length);
+    public Integer onVirtual() {
+      return VirtualUtils.getIntegerLength(length);
     }
   }
 
@@ -148,17 +148,17 @@ public class RandomRule {
    * 在0~max范围内的随机长整数
    * 注：max包含在生成数的范围内
    */
-  public static class RandomLong implements RandomInterface<Long> {
+  public static class VirtualLong implements VirtualApi<Long> {
 
     private int max;
 
-    public RandomLong(int max) {
+    public VirtualLong(int max) {
       this.max = max;
     }
 
     @Override
-    public Long getRandomData() {
-      return RandomUtils.getLong(max + 1);
+    public Long onVirtual() {
+      return VirtualUtils.getLong(max + 1);
     }
   }
 
@@ -166,17 +166,17 @@ public class RandomRule {
    * 定长随机长整数，即固定长整数位范围的数值
    * 如 length=2，就是长整数两位范围，即10~99
    */
-  public static class RandomLongWithLength implements RandomInterface<Long> {
+  public static class VirtualLongWithLength implements VirtualApi<Long> {
 
     private int length;
 
-    RandomLongWithLength(int length) {
+    VirtualLongWithLength(int length) {
       this.length = length;
     }
 
     @Override
-    public Long getRandomData() {
-      return RandomUtils.getLongLength(length);
+    public Long onVirtual() {
+      return VirtualUtils.getLongLength(length);
     }
   }
 
@@ -184,19 +184,19 @@ public class RandomRule {
    * 范围内的浮点数
    * 具体参见{@link ThreadLocalRandom#nextDouble(double, double)}
    */
-  public static class RandomFloat implements RandomInterface<Float> {
+  public static class VirtualFloat implements VirtualApi<Float> {
 
     private double origin;
     private double bound;
 
-    public RandomFloat(double origin, double bound) {
+    public VirtualFloat(double origin, double bound) {
       this.origin = origin;
       this.bound = bound;
     }
 
     @Override
-    public Float getRandomData() {
-      return (float) RandomUtils.getDouble(origin, bound);
+    public Float onVirtual() {
+      return (float) VirtualUtils.getDouble(origin, bound);
     }
 
   }
@@ -205,19 +205,19 @@ public class RandomRule {
    * 范围内的浮点数
    * 具体参见{@link ThreadLocalRandom#nextDouble(double, double)}
    */
-  public static class RandomDouble implements RandomInterface<Double> {
+  public static class VirtualDouble implements VirtualApi<Double> {
 
     private double origin;
     private double bound;
 
-    public RandomDouble(double origin, double bound) {
+    public VirtualDouble(double origin, double bound) {
       this.origin = origin;
       this.bound = bound;
     }
 
     @Override
-    public Double getRandomData() {
-      return RandomUtils.getDouble(origin, bound);
+    public Double onVirtual() {
+      return VirtualUtils.getDouble(origin, bound);
     }
 
   }
@@ -225,11 +225,11 @@ public class RandomRule {
   /**
    * 随机布尔值
    */
-  public static class RandomBoolean implements RandomInterface<Boolean> {
+  public static class VirtualBoolean implements VirtualApi<Boolean> {
 
     @Override
-    public Boolean getRandomData() {
-      return RandomUtils.getBoolean();
+    public Boolean onVirtual() {
+      return VirtualUtils.getBoolean();
     }
   }
 

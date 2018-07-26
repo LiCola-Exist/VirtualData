@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by 李可乐 on 2017/4/18.
  */
 
-public class RandomUtils {
+public class VirtualUtils {
 
 
   private static ThreadLocalRandom getRandomInstance() {

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import org.junit.Test;
-import virtual.RandomUtils;
+import virtual.VirtualUtils;
 import virtual.VirtualData;
 
 /**
@@ -21,12 +21,12 @@ import virtual.VirtualData;
 public class VirtualDataUnitTest {
 
   @Test
-  public void testRandomRule() {
-    String numberString = RandomUtils.getNumberString(2);
+  public void testVirtualRules() {
+    String numberString = VirtualUtils.getNumberString(2);
     assertEquals(false, numberString.isEmpty());
     LLogger.a(numberString);
 
-    String chineseSimple = RandomUtils.getChineseSimple(4);
+    String chineseSimple = VirtualUtils.getChineseSimple(4);
     assertEquals(false,chineseSimple.isEmpty());
     LLogger.a(chineseSimple);
   }

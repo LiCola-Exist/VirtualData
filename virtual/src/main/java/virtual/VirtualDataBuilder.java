@@ -8,18 +8,18 @@ import java.util.Map;
  */
 public interface VirtualDataBuilder {
 
-  Map<String, RandomInterface<Boolean>> injectRuleBoolean(Map<String, RandomInterface<Boolean>> map);
+  Map<String, VirtualApi<Boolean>> injectRuleBoolean(Map<String, VirtualApi<Boolean>> map);
 
-  Map<String, RandomInterface<Integer>> injectRuleInteger(Map<String, RandomInterface<Integer>> map);
+  Map<String, VirtualApi<Integer>> injectRuleInteger(Map<String, VirtualApi<Integer>> map);
 
-  Map<String, RandomInterface<Long>> injectRuleLong(Map<String, RandomInterface<Long>> map);
+  Map<String, VirtualApi<Long>> injectRuleLong(Map<String, VirtualApi<Long>> map);
 
-  Map<String, RandomInterface<Float>> injectRuleFloat(Map<String, RandomInterface<Float>> map);
+  Map<String, VirtualApi<Float>> injectRuleFloat(Map<String, VirtualApi<Float>> map);
 
-  Map<String, RandomInterface<Double>> injectRuleDouble(Map<String, RandomInterface<Double>> map);
+  Map<String, VirtualApi<Double>> injectRuleDouble(Map<String, VirtualApi<Double>> map);
 
-  Map<String, RandomInterface<String>> injectRuleString(Map<String, RandomInterface<String>> map);
+  Map<String, VirtualApi<String>> injectRuleString(Map<String, VirtualApi<String>> map);
 
-  Map<String, RandomInterface<Object>> injectRuleModel(Map<String, RandomInterface<Object>> map);
+  Map<String, VirtualApi<Object>> injectRuleModel(Map<String, VirtualApi<Object>> map);
 
 }

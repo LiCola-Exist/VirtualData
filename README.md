@@ -8,7 +8,7 @@
 # 引用
 
 ```java
-   implementation 'com.licola:virtual:1.2.1'
+   implementation 'com.licola:onVirtual:1.2.2'
 ```
 
 # 使用
@@ -34,7 +34,8 @@ List<CommodityModel> userModels = VirtualData.virtual(CommodityModel.class)
 
 
 # 更新
-- 1.2.1：添加Queue类的支持`buildQueue`，修复错误。
+- 1.2.1:添加Queue类的支持`buildQueue`，修复错误。
+- 1.2.2:调整模块类命名，添加一些数据规则。 
 
 # 项目起源
 在开发中我们需要观察数据Model是否正常的显示在UI中，在单元测试的负责显示的View层需要检测的是页面是否正常显示。它们本质其实就是验证ViewObject（VO）表现层对象的正常表现。

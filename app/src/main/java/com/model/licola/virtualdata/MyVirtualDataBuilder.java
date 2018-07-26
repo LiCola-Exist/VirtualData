@@ -4,9 +4,9 @@ import com.model.licola.virtualdata.model.CommodityModel;
 import com.model.licola.virtualdata.model.ImageModel;
 import java.util.HashMap;
 import java.util.Map;
-import virtual.RandomInterface;
-import virtual.RandomRule.RandomStringPhoneNumber;
-import virtual.RandomUtils;
+import virtual.VirtualApi;
+import virtual.VirtualRules.VirtualStringPhoneNumber;
+import virtual.VirtualUtils;
 import virtual.VirtualDataDefaultBuilder;
 
 /**
@@ -25,12 +25,12 @@ public class MyVirtualDataBuilder extends VirtualDataDefaultBuilder {
    * @return 全新定义的数据规则
    */
   @Override
-  public Map<String, RandomInterface<Integer>> injectRuleInteger(
-      Map<String, RandomInterface<Integer>> map) {
-    map.put("price", new RandomInterface<Integer>() {
+  public Map<String, VirtualApi<Integer>> injectRuleInteger(
+      Map<String, VirtualApi<Integer>> map) {
+    map.put("price", new VirtualApi<Integer>() {
       @Override
-      public Integer getRandomData() {
-        return RandomUtils.getIntegerLength(4);//4位数的价格
+      public Integer onVirtual() {
+        return VirtualUtils.getIntegerLength(4);//假设是4位数的价格
       }
     });
     return map;
@@ -44,13 +44,13 @@ public class MyVirtualDataBuilder extends VirtualDataDefaultBuilder {
    * @return 父类和子类覆盖+新增的数据规则
    */
   @Override
-  public Map<String, RandomInterface<String>> injectRuleString(
-      Map<String, RandomInterface<String>> map) {
+  public Map<String, VirtualApi<String>> injectRuleString(
+      Map<String, VirtualApi<String>> map) {
 
     //调起父类方法 得到原有规则
-    Map<String, RandomInterface<String>> original = super.injectRuleString(map);
+    Map<String, VirtualApi<String>> original = super.injectRuleString(map);
     //覆盖原有phone字段规则
-    original.put("phone", new RandomStringPhoneNumber(11, "180"));
+    original.put("phone", new VirtualStringPhoneNumber(11, "170"));
     //返回覆盖数据后的原有数据
     return original;
   }
@@ -60,37 +60,38 @@ public class MyVirtualDataBuilder extends VirtualDataDefaultBuilder {
    * 添加新的定义规则
    */
   @Override
-  public Map<String, RandomInterface<Object>> injectRuleModel(
-      Map<String, RandomInterface<Object>> map) {
+  public Map<String, VirtualApi<Object>> injectRuleModel(
+      Map<String, VirtualApi<Object>> map) {
 
     //直接添加包装类 数据规则
-    map.put("commodity", new RandomInterface<Object>() {
+    map.put("commodity", new VirtualApi<Object>() {
       @Override
-      public Object getRandomData() {
+      public Object onVirtual() {
         return new CommodityModel("手动设置的title", 100, 1);
       }
     });
 
     //Map结构因为包含两个类型 无法直接使用数据命名规则匹配 只有特殊字段名直接赋值
-    map.put("userMap", new RandomInterface<Object>() {
+    map.put("userMap", new VirtualApi<Object>() {
       @Override
-      public Object getRandomData() {
+      public Object onVirtual() {
         Map<String, Integer> hashMap = new HashMap<>();
         hashMap.put("因为map结构有两个类型，无法统一处理，只能直接返回", 100);
         return hashMap;
       }
     });
 
+
     //针对一些有特殊含义的Model，里面的字段有具体含义 不能根据类型模拟 只有针对特殊的字段名做数据处理
-    map.put("imageModel", new RandomInterface<Object>() {
+    map.put("imageModel", new VirtualApi<Object>() {
       @Override
-      public Object getRandomData() {
+      public Object onVirtual() {
         return new ImageModel("特殊Model的id有具体的含义，无需模拟", "特殊Model的hash有具体含义，无需模拟");
       }
     });
-    map.put("avatar", new RandomInterface<Object>() {
+    map.put("avatar", new VirtualApi<Object>() {
       @Override
-      public Object getRandomData() {
+      public Object onVirtual() {
         return new ImageModel("用户的头像图片id", "用户的头像图片hash");
       }
     });

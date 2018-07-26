@@ -3,18 +3,18 @@ package virtual;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
-import virtual.RandomRule.RandomBoolean;
-import virtual.RandomRule.RandomDouble;
-import virtual.RandomRule.RandomFloat;
-import virtual.RandomRule.RandomInteger;
-import virtual.RandomRule.RandomIntegerWithLength;
-import virtual.RandomRule.RandomLong;
-import virtual.RandomRule.RandomLongWithLength;
-import virtual.RandomRule.RandomStringAlphabet;
-import virtual.RandomRule.RandomStringChinese;
-import virtual.RandomRule.RandomStringNumber;
-import virtual.RandomRule.RandomStringPhoneNumber;
-import virtual.RandomRule.RandomStringSymbol;
+import virtual.VirtualRules.VirtualBoolean;
+import virtual.VirtualRules.VirtualDouble;
+import virtual.VirtualRules.VirtualFloat;
+import virtual.VirtualRules.VirtualInteger;
+import virtual.VirtualRules.VirtualIntegerWithLength;
+import virtual.VirtualRules.VirtualLong;
+import virtual.VirtualRules.VirtualLongWithLength;
+import virtual.VirtualRules.VirtualStringAlphabet;
+import virtual.VirtualRules.VirtualStringChinese;
+import virtual.VirtualRules.VirtualStringNumber;
+import virtual.VirtualRules.VirtualStringPhoneNumber;
+import virtual.VirtualRules.VirtualStringSymbol;
 
 /**
  * Created by LiCola on 2018/5/4.
@@ -23,82 +23,82 @@ import virtual.RandomRule.RandomStringSymbol;
 public class VirtualDataDefaultBuilder implements VirtualDataBuilder {
 
   @Override
-  public Map<String, RandomInterface<Boolean>> injectRuleBoolean(
-      Map<String, RandomInterface<Boolean>> map) {
-    map.put("is", new RandomBoolean());
+  public Map<String, VirtualApi<Boolean>> injectRuleBoolean(
+      Map<String, VirtualApi<Boolean>> map) {
+    map.put("is", new VirtualBoolean());
     return map;
   }
 
   @Override
-  public Map<String, RandomInterface<Integer>> injectRuleInteger(
-      Map<String, RandomInterface<Integer>> map) {
-    map.put("id", new RandomIntegerWithLength(10));
-    map.put("price", new RandomInteger(10000));
-    map.put("money", new RandomInteger(10000));
-    map.put("age", new RandomInteger(120));
-    map.put("level", new RandomInteger(100));
-    map.put("grade", new RandomInteger(100));
-    map.put("process", new RandomInteger(100));
+  public Map<String, VirtualApi<Integer>> injectRuleInteger(
+      Map<String, VirtualApi<Integer>> map) {
+    map.put("id", new VirtualIntegerWithLength(10));
+    map.put("price", new VirtualInteger(10000));
+    map.put("money", new VirtualInteger(10000));
+    map.put("age", new VirtualInteger(120));
+    map.put("level", new VirtualInteger(100));
+    map.put("grade", new VirtualInteger(100));
+    map.put("process", new VirtualInteger(100));
     return map;
   }
 
   @Override
-  public Map<String, RandomInterface<Long>> injectRuleLong(
-      Map<String, RandomInterface<Long>> map) {
-    map.put("time", new RandomInterface<Long>() {
+  public Map<String, VirtualApi<Long>> injectRuleLong(
+      Map<String, VirtualApi<Long>> map) {
+    map.put("time", new VirtualApi<Long>() {
       @Override
-      public Long getRandomData() {
+      public Long onVirtual() {
         return System.currentTimeMillis() / 1000;
       }
     });
-    map.put("price", new RandomLong(10000));
-    map.put("money", new RandomLong(10000));
-    map.put("id", new RandomLongWithLength(14));
+    map.put("price", new VirtualLong(10000));
+    map.put("money", new VirtualLong(10000));
+    map.put("id", new VirtualLongWithLength(14));
     return map;
   }
 
   @Override
-  public Map<String, RandomInterface<Float>> injectRuleFloat(
-      Map<String, RandomInterface<Float>> map) {
-    map.put("level", new RandomFloat(0, 100));
-    map.put("grade", new RandomFloat(0, 100));
-    map.put("process", new RandomFloat(0, 100));
-    map.put("scale", new RandomFloat(0, 100));
+  public Map<String, VirtualApi<Float>> injectRuleFloat(
+      Map<String, VirtualApi<Float>> map) {
+    map.put("level", new VirtualFloat(0, 100));
+    map.put("grade", new VirtualFloat(0, 100));
+    map.put("process", new VirtualFloat(0, 100));
+    map.put("scale", new VirtualFloat(0, 100));
     return map;
   }
 
   @Override
-  public Map<String, RandomInterface<Double>> injectRuleDouble(
-      Map<String, RandomInterface<Double>> map) {
-    map.put("level", new RandomDouble(0, 100));
-    map.put("grade", new RandomDouble(0, 100));
-    map.put("process", new RandomDouble(0, 100));
-    map.put("scale", new RandomDouble(0, 100));
+  public Map<String, VirtualApi<Double>> injectRuleDouble(
+      Map<String, VirtualApi<Double>> map) {
+    map.put("level", new VirtualDouble(0, 100));
+    map.put("grade", new VirtualDouble(0, 100));
+    map.put("process", new VirtualDouble(0, 100));
+    map.put("scale", new VirtualDouble(0, 100));
     return map;
   }
 
   @Override
-  public Map<String, RandomInterface<String>> injectRuleString(
-      Map<String, RandomInterface<String>> map) {
-    map.put("id", new RandomStringNumber(14));
-    map.put("name", new RandomStringChinese(6));
-    map.put("number", new RandomStringAlphabet(8));
-    map.put("phone", new RandomStringPhoneNumber(11,"170"));//11位手机号 前缀固定
-    map.put("title", new RandomStringChinese(8));
-    map.put("content", new RandomStringChinese(24));
-    map.put("desc", new RandomStringChinese(20));
-    map.put("value", new RandomStringSymbol(8));
-    map.put("tag", new RandomStringNumber(4));
-    map.put("time", new RandomInterface<String>() {
+  public Map<String, VirtualApi<String>> injectRuleString(
+      Map<String, VirtualApi<String>> map) {
+    map.put("id", new VirtualStringNumber(14));
+    map.put("name", new VirtualStringChinese(6));
+    map.put("number", new VirtualStringAlphabet(8));
+    map.put("phone", new VirtualStringPhoneNumber(11,"170"));//11位手机号 前缀固定
+    map.put("title", new VirtualStringChinese(8));
+    map.put("content", new VirtualStringChinese(24));
+    map.put("desc", new VirtualStringChinese(20));
+    map.put("value", new VirtualStringSymbol(8));
+    map.put("tag", new VirtualStringNumber(4));
+    map.put("time", new VirtualApi<String>() {
       @Override
-      public String getRandomData() {
+      public String onVirtual() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm")
             .format(new Date(System.currentTimeMillis()));
       }
     });
-    map.put("url", new RandomInterface<String>() {
+    map.put("url", new VirtualApi<String>() {
       @Override
-      public String getRandomData() {
+      public String onVirtual() {
         return "https://github.com/LiCola/VirtualData";
       }
     });
@@ -107,8 +107,8 @@ public class VirtualDataDefaultBuilder implements VirtualDataBuilder {
   }
 
   @Override
-  public Map<String, RandomInterface<Object>> injectRuleModel(
-      Map<String, RandomInterface<Object>> map) {
+  public Map<String, VirtualApi<Object>> injectRuleModel(
+      Map<String, VirtualApi<Object>> map) {
     return map;
   }
 }

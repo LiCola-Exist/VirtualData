@@ -1,6 +1,6 @@
 package virtual;
 
-import static virtual.Util.getMapCapacity;
+import static virtual.Utils.getMapCapacity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -59,13 +59,13 @@ public class VirtualData<T> {
   private HashMap<String, String[]> keyStrings = new HashMap<>();
 
   //builder配置 对应类型的数据规则
-  private Map<String, RandomInterface<Boolean>> ruleBoolean;
-  private Map<String, RandomInterface<Integer>> ruleInteger;
-  private Map<String, RandomInterface<Long>> ruleLong;
-  private Map<String, RandomInterface<Float>> ruleFloat;
-  private Map<String, RandomInterface<Double>> ruleDouble;
-  private Map<String, RandomInterface<String>> ruleString;
-  private Map<String, RandomInterface<Object>> ruleModel;
+  private Map<String, VirtualApi<Boolean>> ruleBoolean;
+  private Map<String, VirtualApi<Integer>> ruleInteger;
+  private Map<String, VirtualApi<Long>> ruleLong;
+  private Map<String, VirtualApi<Float>> ruleFloat;
+  private Map<String, VirtualApi<Double>> ruleDouble;
+  private Map<String, VirtualApi<String>> ruleString;
+  private Map<String, VirtualApi<Object>> ruleModel;
 
   //设置的容器大小
   private int sizeCollection = defaultListSize;
@@ -225,7 +225,7 @@ public class VirtualData<T> {
       throws IllegalAccessException, InstantiationException, InvocationTargetException {
 
     ruleModel = ruleModel == null ? builder
-        .injectRuleModel(new LinkedHashMap<String, RandomInterface<Object>>()) : ruleModel;
+        .injectRuleModel(new LinkedHashMap<String, VirtualApi<Object>>()) : ruleModel;
 
     Object model = checkDefaultRuleAndGet(tClass, fieldName, ruleModel,
         defaultModel);
@@ -347,7 +347,7 @@ public class VirtualData<T> {
     if (fieldClass.isAssignableFrom(boolean.class) || fieldClass.isAssignableFrom(Boolean.class)) {
       //布尔类型 （基本类型和包装类）
       ruleBoolean = ruleBoolean == null ? builder
-          .injectRuleBoolean(new LinkedHashMap<String, RandomInterface<Boolean>>())
+          .injectRuleBoolean(new LinkedHashMap<String, VirtualApi<Boolean>>())
           : ruleBoolean;
       Boolean data = checkDefaultRuleAndGet(fieldName, ruleBoolean,
           defaultBoolean);
@@ -356,7 +356,7 @@ public class VirtualData<T> {
     } else if (fieldClass.isAssignableFrom(float.class) || fieldClass
         .isAssignableFrom(Float.class)) {
       ruleFloat = ruleFloat == null ? builder
-          .injectRuleFloat(new LinkedHashMap<String, RandomInterface<Float>>()) : ruleFloat;
+          .injectRuleFloat(new LinkedHashMap<String, VirtualApi<Float>>()) : ruleFloat;
       Float data = checkDefaultRuleAndGet(fieldName, ruleFloat, defaultFloat);
       data = checkKeyMapAndGet(fieldName, keyFloats, data);
       return data;
@@ -364,7 +364,7 @@ public class VirtualData<T> {
         .isAssignableFrom(Double.class)) {
       //double浮点类型
       ruleDouble = ruleDouble == null ? builder
-          .injectRuleDouble(new LinkedHashMap<String, RandomInterface<Double>>()) : ruleDouble;
+          .injectRuleDouble(new LinkedHashMap<String, VirtualApi<Double>>()) : ruleDouble;
       Double data = checkDefaultRuleAndGet(fieldName, ruleDouble, defaultDouble);
       data = checkKeyMapAndGet(fieldName, keyDoubles, data);
       return data;
@@ -372,7 +372,7 @@ public class VirtualData<T> {
         .isAssignableFrom(Integer.class)) {
       //整数类型（基本类型和包装类）
       ruleInteger = ruleInteger == null ? builder
-          .injectRuleInteger(new LinkedHashMap<String, RandomInterface<Integer>>())
+          .injectRuleInteger(new LinkedHashMap<String, VirtualApi<Integer>>())
           : ruleInteger;
       Integer data = checkDefaultRuleAndGet(fieldName, ruleInteger,
           defaultInteger);
@@ -381,14 +381,14 @@ public class VirtualData<T> {
     } else if (fieldClass.isAssignableFrom(long.class) || fieldClass.isAssignableFrom(Long.class)) {
       //长整数整型 （基本类型和包装类）
       ruleLong = ruleLong == null ? builder
-          .injectRuleLong(new LinkedHashMap<String, RandomInterface<Long>>()) : ruleLong;
+          .injectRuleLong(new LinkedHashMap<String, VirtualApi<Long>>()) : ruleLong;
       Long data = checkDefaultRuleAndGet(fieldName, ruleLong, defaultLong);
       data = checkKeyMapAndGet(fieldName, keyLongs, data);
       return data;
     } else if (fieldClass.isAssignableFrom(String.class)) {
       //String
       ruleString = ruleString == null ? builder
-          .injectRuleString(new LinkedHashMap<String, RandomInterface<String>>()) : ruleString;
+          .injectRuleString(new LinkedHashMap<String, VirtualApi<String>>()) : ruleString;
       String data = checkDefaultRuleAndGet(fieldName, ruleString, defaultString);
       data = checkKeyMapAndGet(fieldName, keyStrings, data);
       return data;
@@ -400,20 +400,20 @@ public class VirtualData<T> {
 
 
   private Object checkDefaultRuleAndGet(Class<?> tClass, String key,
-      Map<String, RandomInterface<Object>> map, Object defaultModel) {
+      Map<String, VirtualApi<Object>> map, Object defaultModel) {
 
-    if (Util.isEmpty(map) || Util.isEmpty(key)) {
+    if (Utils.isEmpty(map) || Utils.isEmpty(key)) {
       return defaultModel;
     }
 
-    RandomInterface<Object> value = map.get(key);
+    VirtualApi<Object> value = map.get(key);
     if (value == null) {
       String offsetKey = key.toLowerCase();
       value = map.get(offsetKey);
     }
 
     if (value != null) {
-      Object data = value.getRandomData();
+      Object data = value.onVirtual();
 
       if (tClass.isInterface()) {
         for (Class<?> aClass : data.getClass().getInterfaces()) {
@@ -442,16 +442,16 @@ public class VirtualData<T> {
    * 如果匹配或者部分匹配 返回特定规则下的随机值
    * 否则 返回默认值
    */
-  private <K> K checkDefaultRuleAndGet(String key, Map<String, RandomInterface<K>> map,
+  private <K> K checkDefaultRuleAndGet(String key, Map<String, VirtualApi<K>> map,
       K defaultValue) {
-    if (Util.isEmpty(map)) {
+    if (Utils.isEmpty(map)) {
       return defaultValue;
     }
 
     String offsetKey = key.toLowerCase();
 
     //优化查找过程 如果全匹配
-    RandomInterface<K> value = map.get(offsetKey);
+    VirtualApi<K> value = map.get(offsetKey);
 
     //没有全匹配 使用部分匹配查找 如果匹配多个规则 使用最后匹配
     if (value == null) {
@@ -464,7 +464,7 @@ public class VirtualData<T> {
     }
 
     if (value != null) {
-      return value.getRandomData();
+      return value.onVirtual();
     }
 
     return defaultValue;//默认值
@@ -484,7 +484,7 @@ public class VirtualData<T> {
     if (values == null || values.length == 0) {
       return defaultValue;
     }
-    return values[RandomUtils.getInt(values.length)];
+    return values[VirtualUtils.getInt(values.length)];
 
   }
 
