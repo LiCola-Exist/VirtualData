@@ -1,5 +1,6 @@
 package com.model.licola.virtualdata.model;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -14,6 +15,7 @@ public class CommodityModel {
   private String phoneNumber;
   private Map<String, Integer> userMap;
   private ImageModel imageModel;
+  private String[] phones;
 
   public CommodityModel() {
   }
@@ -49,6 +51,7 @@ public class CommodityModel {
     sb.append(", phoneNumber='").append(phoneNumber).append('\'');
     sb.append(", userMap=").append(userMap);
     sb.append(", imageModel=").append(imageModel);
+    sb.append(", phones=").append(Arrays.toString(phones));
     sb.append('}');
     return sb.toString();
   }

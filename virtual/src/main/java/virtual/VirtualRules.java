@@ -1,6 +1,7 @@
 package virtual;
 
 
+import static virtual.VirtualUtils.getAlphabetNumber;
 import static virtual.VirtualUtils.getAlphabetString;
 import static virtual.VirtualUtils.getChineseSimple;
 import static virtual.VirtualUtils.getNumberString;
@@ -24,7 +25,7 @@ public class VirtualRules {
 
     private int length;
 
-    VirtualStringNumber(int length) {
+    public VirtualStringNumber(int length) {
       this.length = length;
     }
 
@@ -41,7 +42,7 @@ public class VirtualRules {
 
     private int length;
 
-    VirtualStringAlphabet(int length) {
+    public VirtualStringAlphabet(int length) {
       this.length = length;
     }
 
@@ -52,13 +53,30 @@ public class VirtualRules {
   }
 
   /**
+   * 定长随机字母字符串
+   */
+  public static class VirtualStringAlphabetNumber implements VirtualApi<String> {
+
+    private int length;
+
+    public VirtualStringAlphabetNumber(int length) {
+      this.length = length;
+    }
+
+    @Override
+    public String onVirtual() {
+      return getAlphabetNumber(length);
+    }
+  }
+
+  /**
    * 定长符号/字母/数字字符串
    */
   public static class VirtualStringSymbol implements VirtualApi<String> {
 
     private int length;
 
-    VirtualStringSymbol(int length) {
+    public VirtualStringSymbol(int length) {
       this.length = length;
     }
 
@@ -76,7 +94,7 @@ public class VirtualRules {
 
     private int length;
 
-    VirtualStringChinese(int length) {
+    public VirtualStringChinese(int length) {
       this.length = length;
     }
 
@@ -94,8 +112,8 @@ public class VirtualRules {
    */
   public static class VirtualStringPhoneNumber implements VirtualApi<String> {
 
-    int total;
-    String prefix;
+    private int total;
+    private String prefix;
 
     public VirtualStringPhoneNumber(int total, String prefix) {
       this.total = total;
@@ -134,7 +152,7 @@ public class VirtualRules {
 
     private int length;
 
-    VirtualIntegerWithLength(int length) {
+    public VirtualIntegerWithLength(int length) {
       this.length = length;
     }
 
@@ -170,7 +188,7 @@ public class VirtualRules {
 
     private int length;
 
-    VirtualLongWithLength(int length) {
+    public VirtualLongWithLength(int length) {
       this.length = length;
     }
 

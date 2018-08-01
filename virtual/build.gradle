@@ -20,5 +20,4 @@ allprojects {
     }
 }
 
-//apply from : 'bintray.gradle'
 apply from : 'maven.gradle'

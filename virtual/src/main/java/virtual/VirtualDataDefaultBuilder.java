@@ -11,6 +11,7 @@ import virtual.VirtualRules.VirtualIntegerWithLength;
 import virtual.VirtualRules.VirtualLong;
 import virtual.VirtualRules.VirtualLongWithLength;
 import virtual.VirtualRules.VirtualStringAlphabet;
+import virtual.VirtualRules.VirtualStringAlphabetNumber;
 import virtual.VirtualRules.VirtualStringChinese;
 import virtual.VirtualRules.VirtualStringNumber;
 import virtual.VirtualRules.VirtualStringPhoneNumber;
@@ -21,6 +22,15 @@ import virtual.VirtualRules.VirtualStringSymbol;
  * 实现Builder接口，提供默认规则
  */
 public class VirtualDataDefaultBuilder implements VirtualDataBuilder {
+
+  public static VirtualDataBuilder create() {
+    return new VirtualDataDefaultBuilder();
+  }
+
+  @Override
+  public boolean throwConstructorException() {
+    return false;
+  }
 
   @Override
   public Map<String, VirtualApi<Boolean>> injectRuleBoolean(
@@ -83,12 +93,13 @@ public class VirtualDataDefaultBuilder implements VirtualDataBuilder {
     map.put("id", new VirtualStringNumber(14));
     map.put("name", new VirtualStringChinese(6));
     map.put("number", new VirtualStringAlphabet(8));
-    map.put("phone", new VirtualStringPhoneNumber(11,"170"));//11位手机号 前缀固定
+    map.put("phone", new VirtualStringPhoneNumber(11, "170"));//11位手机号 前缀固定
     map.put("title", new VirtualStringChinese(8));
     map.put("content", new VirtualStringChinese(24));
     map.put("desc", new VirtualStringChinese(20));
     map.put("value", new VirtualStringSymbol(8));
     map.put("tag", new VirtualStringNumber(4));
+    map.put("token", new VirtualStringAlphabetNumber(12));
     map.put("time", new VirtualApi<String>() {
       @Override
       public String onVirtual() {

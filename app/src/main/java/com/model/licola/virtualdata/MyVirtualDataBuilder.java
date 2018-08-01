@@ -5,9 +5,9 @@ import com.model.licola.virtualdata.model.ImageModel;
 import java.util.HashMap;
 import java.util.Map;
 import virtual.VirtualApi;
+import virtual.VirtualDataDefaultBuilder;
 import virtual.VirtualRules.VirtualStringPhoneNumber;
 import virtual.VirtualUtils;
-import virtual.VirtualDataDefaultBuilder;
 
 /**
  * Created by LiCola on 2018/5/9.
@@ -81,7 +81,6 @@ public class MyVirtualDataBuilder extends VirtualDataDefaultBuilder {
       }
     });
 
-
     //针对一些有特殊含义的Model，里面的字段有具体含义 不能根据类型模拟 只有针对特殊的字段名做数据处理
     map.put("imageModel", new VirtualApi<Object>() {
       @Override
@@ -93,6 +92,14 @@ public class MyVirtualDataBuilder extends VirtualDataDefaultBuilder {
       @Override
       public Object onVirtual() {
         return new ImageModel("用户的头像图片id", "用户的头像图片hash");
+      }
+    });
+
+    //因为Java限制 无法构建泛型数组 只能匹配字段名 特殊处理
+    map.put("phones", new VirtualApi<Object>() {
+      @Override
+      public Object onVirtual() {
+        return new String[]{"1", "3"};
       }
     });
 

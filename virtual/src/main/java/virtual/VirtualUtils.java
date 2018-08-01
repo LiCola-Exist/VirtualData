@@ -60,7 +60,7 @@ public class VirtualUtils {
   public static Integer getIntegerLength(int length) {
 
     if (length > 10 || length < 1) {
-      throw new IllegalArgumentException("length参数错误：" + length + " 整数有效范围是1<=length<=10");
+      throw new IllegalArgumentException("length参数错误：" + length + " 整数长度有效范围是1<=length<=10");
     }
 
     int scale = 10;
@@ -78,7 +78,7 @@ public class VirtualUtils {
 
   public static Long getLongLength(int length) {
     if (length > 19 || length < 1) {
-      throw new IllegalArgumentException("length参数错误：" + length + " 长整数有效范围是1<=length<=19");
+      throw new IllegalArgumentException("length参数错误：" + length + " 长整数长度有效范围是1<=length<=19");
     }
 
     long scale = 10;
@@ -101,14 +101,40 @@ public class VirtualUtils {
     for (int i = 0; i < length; i++) {
       chars[i] = getAlphabet();
     }
-    return new String(chars);
+    return new String(chars).intern();
   }
 
-  private static char getAlphabet() {
-    int character = getRandomInstance().nextInt(65, 122);
-    if (character > 90 && character < 97) {
-      //修正大小写字母间的符号显示
-      character += 6;
+  public static char getAlphabet() {
+
+    ThreadLocalRandom randomInstance = getRandomInstance();
+    int character;
+    if (randomInstance.nextBoolean()) {
+      character = randomInstance.nextInt(65, 91);
+    } else {
+      character = randomInstance.nextInt(97, 123);
+    }
+    return (char) character;
+  }
+
+  public static String getAlphabetNumber(int length){
+    char[] chars = new char[length];
+    for (int i = 0; i < length; i++) {
+      chars[i] = getAlphabetNumber();
+    }
+    return new String(chars).intern();
+  }
+
+  public static char getAlphabetNumber() {
+
+    ThreadLocalRandom randomInstance = getRandomInstance();
+    int character;
+    int type = randomInstance.nextInt(4);
+    if (type == 0) {
+      character = randomInstance.nextInt(65, 91);
+    } else if (type == 1) {
+      character = randomInstance.nextInt(97, 123);
+    } else {
+      character = randomInstance.nextInt(48, 58);
     }
     return (char) character;
   }

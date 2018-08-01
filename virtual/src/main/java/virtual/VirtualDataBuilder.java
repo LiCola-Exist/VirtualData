@@ -8,6 +8,8 @@ import java.util.Map;
  */
 public interface VirtualDataBuilder {
 
+  boolean throwConstructorException();
+
   Map<String, VirtualApi<Boolean>> injectRuleBoolean(Map<String, VirtualApi<Boolean>> map);
 
   Map<String, VirtualApi<Integer>> injectRuleInteger(Map<String, VirtualApi<Integer>> map);

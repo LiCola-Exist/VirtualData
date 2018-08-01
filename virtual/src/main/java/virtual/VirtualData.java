@@ -35,6 +35,7 @@ public class VirtualData<T> {
 
   //默认配置
   private static final int defaultListSize = 10;
+
   private static final Object defaultModel = null;
   private static final Boolean defaultBoolean = false;
   private static final Integer defaultInteger = 0;
@@ -80,11 +81,18 @@ public class VirtualData<T> {
    * 外观方法 封装使用
    */
   public static <T> VirtualData<T> virtual(Class<T> classTarget) {
-    return virtual(classTarget, new VirtualDataDefaultBuilder());
+    return virtual(classTarget, VirtualDataDefaultBuilder.create());
   }
 
   public static <T> VirtualData<T> virtual(Class<T> classTarget, VirtualDataBuilder builder) {
     return new VirtualData<>(classTarget, builder);
+  }
+
+  public static <T> T[] virtualArray(T[] sourceArray,VirtualApi<T> api){
+    for (int i = 0; i < sourceArray.length; i++) {
+      sourceArray[i]=api.onVirtual();
+    }
+    return sourceArray;
   }
 
   private VirtualData(Class<T> classTarget, VirtualDataBuilder builder) {
@@ -147,12 +155,11 @@ public class VirtualData<T> {
     }
   }
 
-
-  /**
-   * 构造泛型List集合对象
-   *
-   * @return ArrayList数据
-   */
+    /**
+     * 构造泛型List集合对象
+     *
+     * @return ArrayList数据
+     */
   public List<T> buildList() {
     return buildList(classTarget, fieldName, sizeCollection);
   }
@@ -233,8 +240,20 @@ public class VirtualData<T> {
       return (T) model;
     }
 
+    if (tClass.isArray()) {
+      if (builder.throwConstructorException()){
+        throw new InstantiationException("无法处理数组 因为无法创建泛型数组");
+      }else {
+        return (T) defaultModel;
+      }
+    }
+
     if (tClass.isInterface()) {
-      throw new InstantiationException("无法实例化接口:" + tClass.getName() + " 请输入明确的类class");
+      if (builder.throwConstructorException()){
+        throw new InstantiationException("无法实例化接口:" + tClass.getName() + " 请输入明确的类class");
+      }else {
+        return (T) defaultModel;
+      }
     }
 
     Constructor constructor = cacheConstructor.get(tClass);
@@ -251,8 +270,12 @@ public class VirtualData<T> {
     }
 
     if (constructor == null) {
-      throw new InstantiationException(
-          "无法初始化该类：" + tClass.getName() + " 没有空参构造方法 请添加该类的空参构造方法");
+      if (builder.throwConstructorException()){
+        throw new InstantiationException(
+            "无法初始化该类：" + tClass.getName() + " 没有空参构造方法 请添加该类的空参构造方法");
+      }else {
+        return (T) defaultModel;
+      }
     }
 
     Object object = constructor.newInstance();
@@ -484,6 +507,7 @@ public class VirtualData<T> {
     if (values == null || values.length == 0) {
       return defaultValue;
     }
+
     return values[VirtualUtils.getInt(values.length)];
 
   }
