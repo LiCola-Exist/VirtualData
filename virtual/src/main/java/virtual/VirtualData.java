@@ -2,6 +2,7 @@ package virtual;
 
 import static virtual.Utils.getMapCapacity;
 
+import com.licola.llogger.LLogger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -75,6 +76,7 @@ public class VirtualData<T> {
 
   static {
     cacheConstructor = new HashMap<>();
+    LLogger.init(true, TAG);
   }
 
   /**
@@ -84,13 +86,19 @@ public class VirtualData<T> {
     return virtual(classTarget, VirtualDataDefaultBuilder.create());
   }
 
+  /**
+   * 外观方法 可以传入自定义的虚拟数据规则
+   */
   public static <T> VirtualData<T> virtual(Class<T> classTarget, VirtualDataBuilder builder) {
     return new VirtualData<>(classTarget, builder);
   }
 
-  public static <T> T[] virtualArray(T[] sourceArray,VirtualApi<T> api){
+  /**
+   * 使用api填充虚拟数据，返回原数组
+   */
+  public static <T> T[] virtualArray(T[] sourceArray, VirtualApi<T> api) {
     for (int i = 0; i < sourceArray.length; i++) {
-      sourceArray[i]=api.onVirtual();
+      sourceArray[i] = api.onVirtual();
     }
     return sourceArray;
   }
@@ -155,11 +163,11 @@ public class VirtualData<T> {
     }
   }
 
-    /**
-     * 构造泛型List集合对象
-     *
-     * @return ArrayList数据
-     */
+  /**
+   * 构造泛型List集合对象
+   *
+   * @return ArrayList数据
+   */
   public List<T> buildList() {
     return buildList(classTarget, fieldName, sizeCollection);
   }
@@ -205,10 +213,20 @@ public class VirtualData<T> {
     }
   }
 
+  /**
+   * 构造泛型Queue集合对象
+   *
+   * @return 虚拟的ArrayDeque数据实例
+   */
   public Queue<T> buildQueue() {
     return buildQueue(classTarget, fieldName, sizeCollection);
   }
 
+  /**
+   * 构造泛型Queue集合对象
+   *
+   * @return 虚拟的ArrayDeque数据实例
+   */
   private Queue<T> buildQueue(Class<?> tClass, String fieldName, int size) {
     Queue<T> queue = new ArrayDeque<>();
     try {
@@ -228,54 +246,28 @@ public class VirtualData<T> {
   }
 
 
+  /**
+   * 真正的虚拟数据获取方法
+   */
   private T getVirtualData(Class<?> tClass, String fieldName)
       throws IllegalAccessException, InstantiationException, InvocationTargetException {
 
     ruleModel = ruleModel == null ? builder
         .injectRuleModel(new LinkedHashMap<String, VirtualApi<Object>>()) : ruleModel;
 
-    Object model = checkDefaultRuleAndGet(tClass, fieldName, ruleModel,
+    Object model = onVirtualOrDefault(tClass, fieldName, ruleModel,
         defaultModel);
     if (model != null) {
       return (T) model;
     }
 
-    if (tClass.isArray()) {
-      if (builder.throwConstructorException()){
-        throw new InstantiationException("无法处理数组 因为无法创建泛型数组");
-      }else {
-        return (T) defaultModel;
-      }
+    if (checkException(tClass)) {
+      return (T) defaultModel;
     }
 
-    if (tClass.isInterface()) {
-      if (builder.throwConstructorException()){
-        throw new InstantiationException("无法实例化接口:" + tClass.getName() + " 请输入明确的类class");
-      }else {
-        return (T) defaultModel;
-      }
-    }
-
-    Constructor constructor = cacheConstructor.get(tClass);
-
+    Constructor constructor = getDefaultConstructor(tClass);
     if (constructor == null) {
-      //遍历构造方法 查询是否有空参构造方法
-      for (Constructor item : tClass.getConstructors()) {
-        if (item.getParameterTypes().length == 0) {
-          constructor = item;
-          cacheConstructor.put(tClass, item);
-          break;
-        }
-      }
-    }
-
-    if (constructor == null) {
-      if (builder.throwConstructorException()){
-        throw new InstantiationException(
-            "无法初始化该类：" + tClass.getName() + " 没有空参构造方法 请添加该类的空参构造方法");
-      }else {
-        return (T) defaultModel;
-      }
+      return (T) defaultModel;
     }
 
     Object object = constructor.newInstance();
@@ -296,21 +288,21 @@ public class VirtualData<T> {
 
       if (fieldClass.isAssignableFrom(List.class)) {
         //List接口
-        Class<?> parameterClass = getParameterClass(itemField);
+        Class<?> parameterClass = getParameterSingleClass(itemField);
         dataFieldValue = buildList(parameterClass, itemFieldName, sizeCollection);
       } else if (fieldClass.isAssignableFrom(Set.class)) {
         //Set接口
-        Class<?> parameterClass = getParameterClass(itemField);
+        Class<?> parameterClass = getParameterSingleClass(itemField);
         dataFieldValue = buildSet(parameterClass, itemFieldName, sizeCollection);
       } else if (fieldClass.isAssignableFrom(Queue.class)) {
         //Queue接口
-        Class<?> parameterClass = getParameterClass(itemField);
+        Class<?> parameterClass = getParameterSingleClass(itemField);
         dataFieldValue = buildQueue(parameterClass, itemFieldName, sizeCollection);
       } else {
         //其他类 包括基类类型和包装类型
 
         //1：尝试 自定义类数据规则
-        dataFieldValue = checkDefaultRuleAndGet(fieldClass, itemFieldName, ruleModel,
+        dataFieldValue = onVirtualOrDefault(fieldClass, itemFieldName, ruleModel,
             defaultModel);
 
         //2：尝试 基础类以及它的包装类和String数据规则
@@ -320,10 +312,9 @@ public class VirtualData<T> {
 
         //3：最后 递归处理自定义类 重复步骤
         if (dataFieldValue == null) {
-
-          if (fieldClass.isAssignableFrom(Map.class)){
-            dataFieldValue=defaultModel;
-          }else {
+          if (fieldClass.isAssignableFrom(Map.class)) {
+            dataFieldValue = defaultModel;
+          } else {
             dataFieldValue = getVirtualData(fieldClass, itemFieldName);
           }
         }
@@ -335,29 +326,65 @@ public class VirtualData<T> {
     return (T) object;
   }
 
+  private Constructor getDefaultConstructor(Class<?> tClass) throws InstantiationException {
+    Constructor constructor = cacheConstructor.get(tClass);
 
-  /**
-   * 检查无效设置的字段field
-   * @param field
-   * @return
-   */
-  private boolean checkFieldInvalid(Field field) {
-    int modifiers = field.getModifiers();
-    if (Modifier.isStatic(modifiers)) {
-      if (Modifier.isFinal(modifiers)) {
-        //跳过 静态final字段 一般这种变量 已经固定 无需赋值
+    if (constructor == null) {
+      //遍历构造方法 查询是否有空参构造方法
+      for (Constructor item : tClass.getConstructors()) {
+        if (item.getParameterTypes().length == 0) {
+          constructor = item;
+          cacheConstructor.put(tClass, item);
+          break;
+        }
+      }
+    }
+
+    if (constructor == null) {
+      String msg = "无法初始化该类：" + tClass.getName() + " 没有空参构造方法 请添加该类的空参构造方法";
+      if (builder.throwConstructorException()) {
+        throw new InstantiationException(msg);
+      } else {
+        LLogger.w(msg);
+        return null;
+      }
+    }
+    return constructor;
+  }
+
+  private boolean checkException(Class<?> tClass) throws InstantiationException {
+    if (tClass.isArray()) {
+      String msg = "无法处理数组 因为无法创建泛型数组";
+      if (builder.throwConstructorException()) {
+        throw new InstantiationException(msg);
+      } else {
+        LLogger.w(msg);
         return true;
       }
+    }
 
-      if (Modifier.isTransient(modifiers)) {
-        //跳过 transient变量 典型如 static transient volatile com.android.tools.ir.runtime.IncrementalChange 字段
+    if (tClass.isInterface()) {
+      String msg = "无法实例化接口:" + tClass.getName() + " 请输入明确的类class";
+      if (builder.throwConstructorException()) {
+        throw new InstantiationException(msg);
+      } else {
+        LLogger.w(msg);
         return true;
       }
     }
     return false;
   }
 
-  private Class<?> getParameterClass(Field itemField) {
+
+  /**
+   * 检查无效设置的字段field
+   */
+  private boolean checkFieldInvalid(Field field) {
+    int modifiers = field.getModifiers();
+    return Modifier.isStatic(modifiers);
+  }
+
+  private Class<?> getParameterSingleClass(Field itemField) {
     ParameterizedType parameterType = (ParameterizedType) itemField.getGenericType();
     return (Class<?>) parameterType.getActualTypeArguments()[0];
   }
@@ -372,24 +399,24 @@ public class VirtualData<T> {
       ruleBoolean = ruleBoolean == null ? builder
           .injectRuleBoolean(new LinkedHashMap<String, VirtualApi<Boolean>>())
           : ruleBoolean;
-      Boolean data = checkDefaultRuleAndGet(fieldName, ruleBoolean,
+      Boolean data = onVirtualOrDefault(fieldName, ruleBoolean,
           defaultBoolean);
-      data = checkKeyMapAndGet(fieldName, keyBoolean, data);
+      data = onKeyMapOrDefault(fieldName, keyBoolean, data);
       return data;
     } else if (fieldClass.isAssignableFrom(float.class) || fieldClass
         .isAssignableFrom(Float.class)) {
       ruleFloat = ruleFloat == null ? builder
           .injectRuleFloat(new LinkedHashMap<String, VirtualApi<Float>>()) : ruleFloat;
-      Float data = checkDefaultRuleAndGet(fieldName, ruleFloat, defaultFloat);
-      data = checkKeyMapAndGet(fieldName, keyFloats, data);
+      Float data = onVirtualOrDefault(fieldName, ruleFloat, defaultFloat);
+      data = onKeyMapOrDefault(fieldName, keyFloats, data);
       return data;
     } else if (fieldClass.isAssignableFrom(double.class) || fieldClass
         .isAssignableFrom(Double.class)) {
       //double浮点类型
       ruleDouble = ruleDouble == null ? builder
           .injectRuleDouble(new LinkedHashMap<String, VirtualApi<Double>>()) : ruleDouble;
-      Double data = checkDefaultRuleAndGet(fieldName, ruleDouble, defaultDouble);
-      data = checkKeyMapAndGet(fieldName, keyDoubles, data);
+      Double data = onVirtualOrDefault(fieldName, ruleDouble, defaultDouble);
+      data = onKeyMapOrDefault(fieldName, keyDoubles, data);
       return data;
     } else if (fieldClass.isAssignableFrom(int.class) || fieldClass
         .isAssignableFrom(Integer.class)) {
@@ -397,23 +424,23 @@ public class VirtualData<T> {
       ruleInteger = ruleInteger == null ? builder
           .injectRuleInteger(new LinkedHashMap<String, VirtualApi<Integer>>())
           : ruleInteger;
-      Integer data = checkDefaultRuleAndGet(fieldName, ruleInteger,
+      Integer data = onVirtualOrDefault(fieldName, ruleInteger,
           defaultInteger);
-      data = checkKeyMapAndGet(fieldName, keyInts, data);
+      data = onKeyMapOrDefault(fieldName, keyInts, data);
       return data;
     } else if (fieldClass.isAssignableFrom(long.class) || fieldClass.isAssignableFrom(Long.class)) {
       //长整数整型 （基本类型和包装类）
       ruleLong = ruleLong == null ? builder
           .injectRuleLong(new LinkedHashMap<String, VirtualApi<Long>>()) : ruleLong;
-      Long data = checkDefaultRuleAndGet(fieldName, ruleLong, defaultLong);
-      data = checkKeyMapAndGet(fieldName, keyLongs, data);
+      Long data = onVirtualOrDefault(fieldName, ruleLong, defaultLong);
+      data = onKeyMapOrDefault(fieldName, keyLongs, data);
       return data;
     } else if (fieldClass.isAssignableFrom(String.class)) {
       //String
       ruleString = ruleString == null ? builder
           .injectRuleString(new LinkedHashMap<String, VirtualApi<String>>()) : ruleString;
-      String data = checkDefaultRuleAndGet(fieldName, ruleString, defaultString);
-      data = checkKeyMapAndGet(fieldName, keyStrings, data);
+      String data = onVirtualOrDefault(fieldName, ruleString, defaultString);
+      data = onKeyMapOrDefault(fieldName, keyStrings, data);
       return data;
     } else {
       return null;
@@ -422,7 +449,7 @@ public class VirtualData<T> {
   }
 
 
-  private Object checkDefaultRuleAndGet(Class<?> tClass, String key,
+  private Object onVirtualOrDefault(Class<?> tClass, String key,
       Map<String, VirtualApi<Object>> map, Object defaultModel) {
 
     if (Utils.isEmpty(map) || Utils.isEmpty(key)) {
@@ -461,11 +488,11 @@ public class VirtualData<T> {
 
 
   /**
-   * 检查默认规则的返回值
-   * 如果匹配或者部分匹配 返回特定规则下的随机值
+   * 检查匹配规则的返回值
+   * 如果匹配或者部分匹配 返回特定规则下的虚拟值
    * 否则 返回默认值
    */
-  private <K> K checkDefaultRuleAndGet(String key, Map<String, VirtualApi<K>> map,
+  private <K> K onVirtualOrDefault(String key, Map<String, VirtualApi<K>> map,
       K defaultValue) {
     if (Utils.isEmpty(map)) {
       return defaultValue;
@@ -498,7 +525,7 @@ public class VirtualData<T> {
    * 如果匹配（完全匹配） 返回外部设置的数组中随机位的值
    * 否则 返回默认值
    */
-  private <K> K checkKeyMapAndGet(String fieldName, Map<String, K[]> hashMap, K defaultValue) {
+  private <K> K onKeyMapOrDefault(String fieldName, Map<String, K[]> hashMap, K defaultValue) {
 
     if (hashMap.isEmpty()) {
       return defaultValue;

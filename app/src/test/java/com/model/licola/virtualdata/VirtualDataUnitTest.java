@@ -110,7 +110,7 @@ public class VirtualDataUnitTest {
         .setSizeCollection(1)
         .addKeyInts("times", new Integer[]{10, 20, 30})
         .build();
-    assertEquals(true, model.userModels!=null);
+    assertEquals(true, model.userModels != null);
     assertEquals(true, model.times > 0);
 
     LLogger.a(model);

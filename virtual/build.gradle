@@ -3,6 +3,8 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.licola:llogger:1.4.3"
+
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
