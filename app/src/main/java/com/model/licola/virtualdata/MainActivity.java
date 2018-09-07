@@ -3,7 +3,6 @@ package com.model.licola.virtualdata;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.model.licola.virtualdata.model.CommodityModel;
 import com.model.licola.virtualdata.model.UserModel;
 import virtual.VirtualData;

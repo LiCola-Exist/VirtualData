@@ -1,11 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         applicationId "com.model.licola.virtualdata"
         minSdkVersion 21
-        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -28,11 +27,11 @@ dependencies {
     implementation project(":virtual")
 
     //log日志工具
-    implementation "com.licola:llogger:1.4.3"
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation "com.licola:llogger:1.4.4"
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
 }
 

@@ -13,9 +13,6 @@ public class UserModel {
   private float grade;
   private String gitUrl;
 
-  public UserModel() {
-  }
-
   public UserModel(String userId, String username, String phone, int age, float grade,
       String gitUrl) {
     this.userId = userId;

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import virtual.internal.ObjectConstructor;
+import virtual.internal.ObjectConstructorApi;
 
 /**
  * Created by 李可乐 on 2017/4/17.
@@ -265,12 +267,12 @@ public class VirtualData<T> {
       return (T) defaultModel;
     }
 
-    Constructor constructor = getDefaultConstructor(tClass);
-    if (constructor == null) {
+    ObjectConstructorApi<?> constructorApi = ObjectConstructor.get(tClass);
+    if (constructorApi == null) {
       return (T) defaultModel;
     }
 
-    Object object = constructor.newInstance();
+    Object object = constructorApi.construct();
 
     Field[] fields = tClass.getDeclaredFields();//获取该类声明的全部域
 
@@ -326,31 +328,6 @@ public class VirtualData<T> {
     return (T) object;
   }
 
-  private Constructor getDefaultConstructor(Class<?> tClass) throws InstantiationException {
-    Constructor constructor = cacheConstructor.get(tClass);
-
-    if (constructor == null) {
-      //遍历构造方法 查询是否有空参构造方法
-      for (Constructor item : tClass.getConstructors()) {
-        if (item.getParameterTypes().length == 0) {
-          constructor = item;
-          cacheConstructor.put(tClass, item);
-          break;
-        }
-      }
-    }
-
-    if (constructor == null) {
-      String msg = "无法初始化该类：" + tClass.getName() + " 没有空参构造方法 请添加该类的空参构造方法";
-      if (builder.throwConstructorException()) {
-        throw new InstantiationException(msg);
-      } else {
-        LLogger.w(msg);
-        return null;
-      }
-    }
-    return constructor;
-  }
 
   private boolean checkException(Class<?> tClass) throws InstantiationException {
     if (tClass.isArray()) {
